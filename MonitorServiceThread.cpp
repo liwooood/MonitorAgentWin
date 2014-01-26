@@ -1,9 +1,10 @@
 #include "StdAfx.h"
+
 #include "MonitorServiceThread.h"
-#include "ConfigManager.h"
-#include "TCPClientSync.h"
+#include "config/ConfigManager.h"
+#include "network/TCPClientSync.h"
 #include "MonitorProcessThread.h"
-#include "FileLog.h"
+#include "output/FileLog.h"
 
 
 CMonitorServiceThread g_MonitorServiceThread;

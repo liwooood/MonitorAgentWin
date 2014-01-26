@@ -68,7 +68,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>e:\common;D:\boost\1.55\include\boost-1_55;d:\Visual Leak Detector\include;D:\protobuf\protobuf-2.4.1\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;D:\boost\1.55\include\boost-1_55;d:\Visual Leak Detector\include;D:\protobuf\protobuf-2.4.1\src</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

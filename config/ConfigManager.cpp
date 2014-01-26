@@ -1,8 +1,11 @@
-#include <windows.h>
-#include "ConfigManager.h"
-#include "pugixml.hpp"
+#include "stdafx.h"
+
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include "ConfigManager.h"
+#include "xml/pugixml.hpp"
+
 
 CConfigManager::CConfigManager(void)
 {

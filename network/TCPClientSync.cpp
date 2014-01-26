@@ -17,8 +17,8 @@
 #include <boost/system/system_error.hpp>
 
 #include "TCPClientSync.h"
-#include "FileLog.h"
-#include "ConfigManager.h"
+#include "output/FileLog.h"
+#include "config/ConfigManager.h"
 
 
 

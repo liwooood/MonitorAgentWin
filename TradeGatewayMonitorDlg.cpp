@@ -7,11 +7,11 @@
 #include "TradeGatewayMonitorDlg.h"
 
 #include "MonitorProcessThread.h"
-#include "ConfigManager.h"
+#include "config/ConfigManager.h"
 #include "resource.h"
 
-#include "TCPClientSync.h"
-#include "TCPClientASync.h"
+#include "network/TCPClientSync.h"
+#include "network/TCPClientASync.h"
 
 #include "MonitorServiceThread.h"
 

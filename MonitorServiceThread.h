@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TCPClientSync.h"
+#include "network/TCPClientSync.h"
 
 /*
 ³¬Ê±±¨´í

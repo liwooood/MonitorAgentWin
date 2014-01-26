@@ -6,7 +6,7 @@
 
 #include "FileLog.h"
 
-#include "configmanager.h"
+#include "config/configmanager.h"
 
 
 FileLog::FileLog(void)

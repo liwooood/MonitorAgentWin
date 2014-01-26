@@ -5,8 +5,9 @@
 #include "stdafx.h"
 #include "TradeGatewayMonitor.h"
 #include "TradeGatewayMonitorDlg.h"
-#include "ConfigManager.h"
+#include "config/ConfigManager.h"
 
+// visual memory leak check
 #include <vld.h>
 
 

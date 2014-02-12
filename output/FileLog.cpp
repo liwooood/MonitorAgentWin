@@ -18,7 +18,7 @@ FileLog::~FileLog(void)
 {
 }
 
-void FileLog::Log(std::string log, std::string file)
+void FileLog::Log(int logLevel, std::string log, std::string file)
 {
 	// 如果是运行模式，直接返回，不记录日志文件
 	//if (sConfigManager::instance().m_nRunMode)
@@ -27,6 +27,8 @@ void FileLog::Log(std::string log, std::string file)
 	std::string msg = "调试信息：" + log  + "\n";
 	TRACE(msg.c_str());
 
+	if (!logLevel >= sConfigManager::instance().logLevel)
+		return;
 
 	// 创建目录
 	std::string sLogDir = sConfigManager::instance().GetWorkingDir();

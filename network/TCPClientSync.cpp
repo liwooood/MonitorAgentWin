@@ -45,7 +45,7 @@ void CTCPClientSync::check_deadline()
 	
 	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now())
 	{
-		gFileLog::instance().Log("连接超时或读写超时");
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接超时或读写超时");
 
 		Close();
 
@@ -74,8 +74,8 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 		boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query, ec);
 
 		// 设置连接超时
-		//int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
-		//deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
+		int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
+		deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
 
 		ec = boost::asio::error::would_block;
 
@@ -90,20 +90,20 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 			std::string sErrMsg = ec.message();
 			std::string sErrInfo = "连接交易网关失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
-			gFileLog::instance().Log(sErrInfo);
+			gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 			
 			
 			m_bConnected = false;
 			return m_bConnected;
 		}
 
-		gFileLog::instance().Log("连接交易网关成功!");
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "连接交易网关成功!");
 		m_bConnected = true;
 		return m_bConnected;
 	}
 	catch(std::exception& e)
 	{
-		gFileLog::instance().Log("连接交易网关异常：" + std::string(e.what()));
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接交易网关异常：" + std::string(e.what()));
 		m_bConnected = false;
 		return m_bConnected;
 	}
@@ -148,7 +148,7 @@ bool CTCPClientSync::WriteMsgHeader(CustomMessage * pReq)
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
 		std::string sErrInfo = "写包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
-		gFileLog::instance().Log(sErrInfo);
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
 		return m_bConnected;
@@ -176,7 +176,7 @@ bool CTCPClientSync::WriteMsgContent(CustomMessage * pReq)
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
 		std::string sErrInfo = "写包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
-		gFileLog::instance().Log(sErrInfo);
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
 		return m_bConnected;
@@ -216,7 +216,7 @@ bool CTCPClientSync::ReadMsgHeader(CustomMessage * pRes)
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
 		std::string sErrInfo = "读包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
-		gFileLog::instance().Log(sErrInfo);
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
 		return m_bConnected;
@@ -250,7 +250,7 @@ bool CTCPClientSync::ReadMsgContent(CustomMessage * pRes)
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
 		std::string sErrInfo = "读包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
-		gFileLog::instance().Log(sErrInfo);
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
 		return m_bConnected;			
@@ -273,11 +273,11 @@ void CTCPClientSync::Close()
 	
 	if (ec)
 	{
-		gFileLog::instance().Log("断开交易网关异常：" + ec.message());
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "断开交易网关异常：" + ec.message());
 	}
 
 	
-	gFileLog::instance().Log("断开交易网关!");
+	gFileLog::instance().Log(LOG_LEVEL_DEBUG, "断开交易网关!");
 }
 
 bool CTCPClientSync::ReConnect()
@@ -299,12 +299,10 @@ bool CTCPClientSync::HeartBeat()
 
 	bool bRet = false;
 
-	// 开始时间
-	 boost::posix_time::ptime time_sent = boost::posix_time::microsec_clock::universal_time();
 	
 	// 设置读写超时
-	//int nReadWriteTimeout = sConfigManager::instance().m_nReadWriteTimeout;
-	//deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
+	int nReadWriteTimeout = sConfigManager::instance().m_nReadWriteTimeout;
+	deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
 
 	// 发送请求
 	CustomMessage * pReq = new CustomMessage();
@@ -327,19 +325,14 @@ bool CTCPClientSync::HeartBeat()
 	if (bRet)
 	{
 		//std::string response(pRes->GetPkgBody().begin(),pRes->GetPkgBody().end());
-		gFileLog::instance().Log("应答内容：" + pRes->GetMsgContentString());
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "应答内容：" + pRes->GetMsgContentString());
 	}
 	else
 	{
 	}
 	delete pRes;	
 
-	// 结束时间
-	boost::posix_time::ptime time_received = boost::posix_time::microsec_clock::universal_time();
-
-	// 运行时间
-	int nRuntime = (time_received - time_sent).total_microseconds();
-	//gFileLog::instance().Log("执行时间：" + boost::lexical_cast<std::string>(nRuntime));
+	
 
 	return bRet;
 }

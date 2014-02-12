@@ -10,9 +10,12 @@
   <service_init>3</service_init>
   
   <!---连接超时，单位秒-->
-  <connect_timeout>30</connect_timeout>
+  <connect_timeout>1</connect_timeout>
   <!---读写超时，单位秒-->
-  <readwrite_timeout>120</readwrite_timeout>
+  <readwrite_timeout>3</readwrite_timeout>
+  
+  <!--日志级别0 DEBUG, 1 INFO, 2 WARN, 3ERROR-->
+  <LogLevel>1</LogLevel>
   
    <service>
     <enable>1</enable>
@@ -23,7 +26,7 @@
     <reboot_time>22:00:00</reboot_time>
     <process>E:\Trade\TradeGateway\bin_debug\tradegateway.exe</process>
     <!-- 服务地址 -->
-    <webtrade>127.0.0.1:5001</webtrade>
+    <webtrade>127.0.0.1:5004</webtrade>
   </service>
   
 </config>

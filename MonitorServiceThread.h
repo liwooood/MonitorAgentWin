@@ -1,6 +1,6 @@
 #pragma once
 
-#include "network/TCPClientSync.h"
+
 
 /*
 ³¬Ê±±¨´í
@@ -19,7 +19,7 @@ private:
 	HANDLE m_hThread;
 	bool m_bRunning;
 
-	CTCPClientSync m_Conn;
+	
 };
 
 extern CMonitorServiceThread g_MonitorServiceThread;

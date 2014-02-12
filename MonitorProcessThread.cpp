@@ -14,9 +14,10 @@
 
 #include "config/ConfigManager.h"
 #include "output/FileLog.h"
+#include "network/TCPClientSync.h"
 
 
-#pragma comment(lib, "Psapi.lib")
+
 
 CMonitorProcessThread g_MonitorProcessThread;
 
@@ -33,6 +34,7 @@ CMonitorProcessThread::~CMonitorProcessThread(void)
 
 void CMonitorProcessThread::start()
 {
+	// 杀掉所有进程
 	TerminateAllService();
 
 	m_hThread = NULL;
@@ -77,24 +79,53 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 		{
 			CService& service = m_vService[i];
 
-			if (pThis->IsProcessExist(service.m_sProcess))
+			if (!pThis->IsProcessExist(service.m_sProcess))
 			{
+				gFileLog::instance().Log(LOG_LEVEL_INFO, "进程不存在，准备启动进程\n");
+				pThis->StartService(service.m_sProcess);
+
+				gFileLog::instance().Log(LOG_LEVEL_INFO, "等待进程启动完成\n");
+				Sleep(sConfigManager::instance().m_nServiceInit * 1000);
+				continue;
+			}
+			else
+			{
+				std::vector<std::string> kv;
+				boost::split(kv, sConfigManager::instance().m_vService[0].m_sServer, boost::is_any_of(":"));
+
+				std::string ip = kv[0];
+				int port = boost::lexical_cast<int>(kv[1]);
+
+				CTCPClientSync m_Conn;
+
+				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "准备连接进程");
+				if (!m_Conn.Connect(ip, port))
+				{
+					gFileLog::instance().Log(LOG_LEVEL_INFO, "连接失败，杀掉进程，重头开始执行");
+					pThis->TerminateAllService();
+					continue;
+				}
+
+				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "准备发送心跳包");
+				if (!m_Conn.HeartBeat())
+				{
+					gFileLog::instance().Log(LOG_LEVEL_INFO, "发送心跳失败，杀掉进程，重头开始执行");
+					pThis->TerminateAllService();
+					continue;
+				}
+
+				m_Conn.Close();
+
 				//TRACE("进程存在\n");
 				if (pThis->IsRebootByDate(service.m_sRebootDate))
 				{
 					if (pThis->IsRebootByTime(service.m_sRebootTime))
 					{
 						// 根据配置文件配置的时间点来重新初始化服务
-						gFileLog::instance().Log("定时重启服务");
+						gFileLog::instance().Log(LOG_LEVEL_INFO, "定时重启服务");
 						pThis->TerminateService(service.m_sProcess);
 					}
 				}
-			}
-			else
-			{
-				//TRACE("进程不存在\n");
-				//pThis->StartService(service.m_sProcess);
-				// 由服务监控来管理
 
 			} // end if
 		}//end for

@@ -14,6 +14,7 @@
 #include "network/TCPClientASync.h"
 
 #include "MonitorServiceThread.h"
+#include "output/FileLog.h"
 
 
 
@@ -138,8 +139,10 @@ void CTradeGatewayMonitorDlg::Init()
 	processFile += service.m_sProcess.c_str();
 	this->GetDlgItem(IDC_PROCSS_FILE)->SetWindowText(processFile);
 
+	gFileLog::instance().Log(LOG_LEVEL_INFO, "监控代理启动");
+
 	// 启动进程监控
-	//g_MonitorProcessThread.start();	
+	g_MonitorProcessThread.start();	
 
 	// 启动服务监控
 	//g_MonitorServiceThread.start();

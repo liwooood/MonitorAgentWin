@@ -12,29 +12,14 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="检测进程">
-      <UniqueIdentifier>{31f75385-cd44-4e31-8be3-2abba21acd80}</UniqueIdentifier>
-    </Filter>
     <Filter Include="innosetup">
       <UniqueIdentifier>{15a9a4c1-86ba-4e6d-9d83-823ceb48390c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="通过心跳检测服务">
-      <UniqueIdentifier>{52c53a77-ffc9-4e0e-9016-04e3f952a340}</UniqueIdentifier>
     </Filter>
     <Filter Include="xml">
       <UniqueIdentifier>{588263af-82dc-4ceb-b23c-c601bf28a12e}</UniqueIdentifier>
     </Filter>
     <Filter Include="本地日志">
       <UniqueIdentifier>{d90ebb69-6e48-4908-8628-01159e0c986f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="通过心跳检测服务\TCP">
-      <UniqueIdentifier>{948faeab-3a21-473e-853b-cf1d2a0fa958}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="通过心跳检测服务\TCP\同步">
-      <UniqueIdentifier>{eb57d279-5af3-4b5f-9490-17ab7a9911fc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="通过心跳检测服务\TCP\异步">
-      <UniqueIdentifier>{b4e72eef-5651-4a1d-b907-31809ddf1590}</UniqueIdentifier>
     </Filter>
     <Filter Include="配置文件\debug">
       <UniqueIdentifier>{c6ca2035-1990-403e-bda3-2978f8f97b27}</UniqueIdentifier>
@@ -45,17 +30,35 @@
     <Filter Include="第三方">
       <UniqueIdentifier>{a7d954d7-8e29-4b83-acea-a3f4cdc7fc38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="通过心跳检测服务\消息定义">
-      <UniqueIdentifier>{7618e986-342d-4d67-a694-ff70c12c9bf2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="通过心跳检测服务\SSL">
-      <UniqueIdentifier>{5cf301f2-001a-4bbe-9668-5e69fb297057}</UniqueIdentifier>
-    </Filter>
     <Filter Include="xml\pugixml">
       <UniqueIdentifier>{38aab92d-c818-4cf2-bf3d-b8b0b9331a87}</UniqueIdentifier>
     </Filter>
     <Filter Include="xml\rapidxml">
       <UniqueIdentifier>{a8e64869-3d67-4b1b-b9e6-24d921669223}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测">
+      <UniqueIdentifier>{e32887f7-45b5-4ff0-96fe-6ff614da4754}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\检测进程">
+      <UniqueIdentifier>{31f75385-cd44-4e31-8be3-2abba21acd80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\通过心跳检测服务">
+      <UniqueIdentifier>{52c53a77-ffc9-4e0e-9016-04e3f952a340}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\通过心跳检测服务\TCP">
+      <UniqueIdentifier>{948faeab-3a21-473e-853b-cf1d2a0fa958}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\通过心跳检测服务\TCP\同步">
+      <UniqueIdentifier>{eb57d279-5af3-4b5f-9490-17ab7a9911fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\通过心跳检测服务\TCP\异步">
+      <UniqueIdentifier>{b4e72eef-5651-4a1d-b907-31809ddf1590}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\通过心跳检测服务\消息定义">
+      <UniqueIdentifier>{7618e986-342d-4d67-a694-ff70c12c9bf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\通过心跳检测服务\SSL">
+      <UniqueIdentifier>{5cf301f2-001a-4bbe-9668-5e69fb297057}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -72,19 +75,19 @@
       <Filter>配置文件</Filter>
     </ClCompile>
     <ClCompile Include="MonitorProcessThread.cpp">
-      <Filter>检测进程</Filter>
+      <Filter>检测\检测进程</Filter>
     </ClCompile>
     <ClCompile Include="MonitorServiceThread.cpp">
-      <Filter>通过心跳检测服务</Filter>
+      <Filter>检测\通过心跳检测服务</Filter>
     </ClCompile>
     <ClCompile Include="network\CustomMessage.cpp">
-      <Filter>通过心跳检测服务\消息定义</Filter>
+      <Filter>检测\通过心跳检测服务\消息定义</Filter>
     </ClCompile>
     <ClCompile Include="network\TCPClientASync.cpp">
-      <Filter>通过心跳检测服务\TCP\异步</Filter>
+      <Filter>检测\通过心跳检测服务\TCP\异步</Filter>
     </ClCompile>
     <ClCompile Include="network\TCPClientSync.cpp">
-      <Filter>通过心跳检测服务\TCP\同步</Filter>
+      <Filter>检测\通过心跳检测服务\TCP\同步</Filter>
     </ClCompile>
     <ClCompile Include="config\ConfigManager.cpp">
       <Filter>配置文件</Filter>
@@ -119,22 +122,22 @@
       <Filter>配置文件</Filter>
     </ClInclude>
     <ClInclude Include="MonitorProcessThread.h">
-      <Filter>检测进程</Filter>
+      <Filter>检测\检测进程</Filter>
     </ClInclude>
     <ClInclude Include="MonitorServiceThread.h">
-      <Filter>通过心跳检测服务</Filter>
+      <Filter>检测\通过心跳检测服务</Filter>
     </ClInclude>
     <ClInclude Include="network\CustomMessage.h">
-      <Filter>通过心跳检测服务\消息定义</Filter>
+      <Filter>检测\通过心跳检测服务\消息定义</Filter>
     </ClInclude>
     <ClInclude Include="network\MsgHeader.h">
-      <Filter>通过心跳检测服务\消息定义</Filter>
+      <Filter>检测\通过心跳检测服务\消息定义</Filter>
     </ClInclude>
     <ClInclude Include="network\TCPClientASync.h">
-      <Filter>通过心跳检测服务\TCP\异步</Filter>
+      <Filter>检测\通过心跳检测服务\TCP\异步</Filter>
     </ClInclude>
     <ClInclude Include="network\TCPClientSync.h">
-      <Filter>通过心跳检测服务\TCP\同步</Filter>
+      <Filter>检测\通过心跳检测服务\TCP\同步</Filter>
     </ClInclude>
     <ClInclude Include="config\ConfigManager.h">
       <Filter>配置文件</Filter>

@@ -28,6 +28,8 @@ public:
 	int m_nConnectTimeout;
 	int m_nReadWriteTimeout;
 
+	int logLevel;
+
 };
 typedef boost::detail::thread::singleton<CConfigManager> sConfigManager;
 

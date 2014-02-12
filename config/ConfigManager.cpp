@@ -68,6 +68,9 @@ bool CConfigManager::LoadConfig()
 	node = doc.select_single_node("/config/readwrite_timeout");
 	m_nReadWriteTimeout = boost::lexical_cast<int>(node.node().child_value());
 
+	node = doc.select_single_node("/config/LogLevel");
+	logLevel = boost::lexical_cast<int>(node.node().child_value());
+
 
 	CService service;
 

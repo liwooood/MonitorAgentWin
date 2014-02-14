@@ -8,22 +8,25 @@
 
   <!-- 等待服务启动, 初始化等待时间，单位秒 -->
   <service_init>3</service_init>
-  
+
   <!---连接超时，单位秒-->
-  <connect_timeout>3</connect_timeout>
+  <connect_timeout>1</connect_timeout>
   <!---读写超时，单位秒-->
-  <readwrite_timeout>6</readwrite_timeout>
-  
-   <service>
+  <readwrite_timeout>3</readwrite_timeout>
+
+  <!--日志级别0 DEBUG, 1 INFO, 2 WARN, 3ERROR-->
+  <LogLevel>1</LogLevel>
+
+  <service>
     <enable>1</enable>
     <name>国泰君安一户通交易网关</name>
     <!--0代表星期天,1,2,3,4,5,6,all代表每一天都会重启， none代表不定时重启-->
     <reboot_date>all</reboot_date>
     <!-- 0-24 -->
     <reboot_time>22:00:00</reboot_time>
-    <process>D:\workspace_windows\QuoteTrade\Server\TradeGateway\bin\tradegateway.exe</process>
+    <process>E:\Trade\TradeGateway\bin_debug\tradegateway.exe</process>
     <!-- 服务地址 -->
-    <webtrade>127.0.0.1:5001</webtrade>
+    <webtrade>127.0.0.1:5004</webtrade>
   </service>
-  
+
 </config>

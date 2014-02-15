@@ -159,18 +159,7 @@ void CTradeGatewayMonitorDlg::OnBnClickedOpenLog()
 void CTradeGatewayMonitorDlg::OnBnClickedTestService()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	CTCPClientSync conn;
-
-	conn.Connect("127.0.0.1", 6001);
-
-	for (int i=0; i<1000; i++)
-	{
-		TRACE("==================i=%d===============\n", i);
-		if(!conn.HeartBeat())
-			break;
-	}
-
-	conn.Close();
+	
 }
 
 
@@ -197,4 +186,20 @@ pTcpClientAsync->init();
 void CTradeGatewayMonitorDlg::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	
+
+	for (int i=0; i<5000; i++)
+	{
+		TRACE("==================i=%d===============\n", i);
+		CTCPClientSync conn;
+
+		conn.Connect("127.0.0.1", 5003);
+
+		conn.HeartBeat();
+			
+
+		conn.Close();
+	}
+
+	
 }

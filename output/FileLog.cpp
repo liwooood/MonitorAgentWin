@@ -27,7 +27,8 @@ void FileLog::Log(int logLevel, std::string log, std::string file)
 	std::string msg = "调试信息：" + log  + "\n";
 	TRACE(msg.c_str());
 
-	if (!logLevel >= sConfigManager::instance().logLevel)
+	int tmp = sConfigManager::instance().logLevel;
+	if (!logLevel > tmp)
 		return;
 
 	// 创建目录

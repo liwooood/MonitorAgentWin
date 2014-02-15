@@ -8,7 +8,7 @@
 #include "config/ConfigManager.h"
 
 // visual memory leak check
-#include <vld.h>
+//#include <vld.h>
 
 
 #ifdef _DEBUG

@@ -1,6 +1,6 @@
 #ifdef _DEBUG
 
-#pragma comment(lib, "vld.lib")
+//#pragma comment(lib, "vld.lib")
 
 #pragma comment(lib, "Psapi.lib")
 

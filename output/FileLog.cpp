@@ -28,7 +28,8 @@ void FileLog::Log(int logLevel, std::string log, std::string file)
 	TRACE(msg.c_str());
 
 	int tmp = sConfigManager::instance().logLevel;
-	if (!logLevel > tmp)
+	//如果传入级别小于设置级别，不记录日志
+	if (logLevel < tmp)
 		return;
 
 	// 创建目录

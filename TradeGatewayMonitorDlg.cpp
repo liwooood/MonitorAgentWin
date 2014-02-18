@@ -144,8 +144,8 @@ void CTradeGatewayMonitorDlg::Init()
 	// 启动进程监控
 	g_MonitorProcessThread.start();	
 
-	// 启动服务监控
-	//g_MonitorServiceThread.start();
+	// 定时重启
+	g_MonitorServiceThread.start();
 }
 
 
@@ -188,7 +188,7 @@ void CTradeGatewayMonitorDlg::OnBnClickedButton2()
 	// TODO: 在此添加控件通知处理程序代码
 	
 
-	for (int i=0; i<5000; i++)
+	for (int i=0; i < 86400; i++)
 	{
 		TRACE("==================i=%d===============\n", i);
 		CTCPClientSync conn;

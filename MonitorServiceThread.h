@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 
 
 /*
@@ -19,7 +20,9 @@ private:
 	HANDLE m_hThread;
 	bool m_bRunning;
 
-	
+	bool IsRebootByDate(std::string date);
+	bool IsRebootByTime(std::string time);
+	void TerminateService(std::string process);
 };
 
 extern CMonitorServiceThread g_MonitorServiceThread;

@@ -81,7 +81,7 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 
 			if (!pThis->IsProcessExist(service.m_sProcess))
 			{
-				gFileLog::instance().Log(LOG_LEVEL_INFO, "进程不存在，准备启动进程\n");
+				gFileLog::instance().Log(LOG_LEVEL_ERROR, "进程不存在，启动进程\n");
 				pThis->StartService(service.m_sProcess);
 
 				gFileLog::instance().Log(LOG_LEVEL_INFO, "等待进程启动完成\n");
@@ -101,7 +101,7 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "准备连接进程");
 				if (!m_Conn.Connect(ip, port))
 				{
-					gFileLog::instance().Log(LOG_LEVEL_INFO, "连接失败，杀掉进程，重头开始执行");
+					gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接失败，杀掉进程，重头开始执行");
 					pThis->TerminateAllService();
 					continue;
 				}
@@ -109,23 +109,14 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "准备发送心跳包");
 				if (!m_Conn.HeartBeat())
 				{
-					gFileLog::instance().Log(LOG_LEVEL_INFO, "发送心跳失败，杀掉进程，重头开始执行");
+					gFileLog::instance().Log(LOG_LEVEL_ERROR, "发送心跳失败，杀掉进程，重头开始执行");
 					pThis->TerminateAllService();
 					continue;
 				}
 
 				m_Conn.Close();
 
-				//TRACE("进程存在\n");
-				if (pThis->IsRebootByDate(service.m_sRebootDate))
-				{
-					if (pThis->IsRebootByTime(service.m_sRebootTime))
-					{
-						// 根据配置文件配置的时间点来重新初始化服务
-						gFileLog::instance().Log(LOG_LEVEL_INFO, "定时重启服务");
-						pThis->TerminateService(service.m_sProcess);
-					}
-				}
+				
 
 			} // end if
 		}//end for
@@ -318,51 +309,3 @@ void CMonitorProcessThread::TerminateService(std::string process)
 
 }
 
-/*
-判断当天日期和传入的参数是否相等
-*/
-bool CMonitorProcessThread::IsRebootByDate(std::string date)
-{
-	bool bRet = false;
-
-	if (boost::algorithm::iequals(date, "none"))
-	{
-		bRet = false;
-		return bRet;
-	}
-
-	if (boost::algorithm::iequals(date, "all"))
-	{
-		bRet = true;
-		return bRet;
-	}
-
-	boost::gregorian::date d = boost::gregorian::day_clock::local_day();
-	int dayOfWeek = d.day_of_week(); //星期天从0开始
-
-	int today = boost::lexical_cast<int>(date);
-	if (today == dayOfWeek)
-		return true;
-	
-
-	return false;
-}
-
-/*
-判断当前时间是否和参数传入的时间time相等
-*/
-bool CMonitorProcessThread::IsRebootByTime(std::string time)
-{
-	bool bRet = false;
-
-	boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-	std::string nowTime = boost::posix_time::to_simple_string(now.time_of_day());
-	//TRACE("now time %s\n", nowTime.c_str());
-
-	if (nowTime == time)
-	{
-		return true;
-	}
-
-	return bRet;
-}

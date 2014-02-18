@@ -42,23 +42,23 @@
     <Filter Include="检测\检测进程">
       <UniqueIdentifier>{31f75385-cd44-4e31-8be3-2abba21acd80}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\通过心跳检测服务">
-      <UniqueIdentifier>{52c53a77-ffc9-4e0e-9016-04e3f952a340}</UniqueIdentifier>
+    <Filter Include="检测\检测进程\SSL">
+      <UniqueIdentifier>{5cf301f2-001a-4bbe-9668-5e69fb297057}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\通过心跳检测服务\TCP">
+    <Filter Include="检测\检测进程\TCP">
       <UniqueIdentifier>{948faeab-3a21-473e-853b-cf1d2a0fa958}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\通过心跳检测服务\TCP\同步">
+    <Filter Include="检测\检测进程\TCP\同步">
       <UniqueIdentifier>{eb57d279-5af3-4b5f-9490-17ab7a9911fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\通过心跳检测服务\TCP\异步">
+    <Filter Include="检测\检测进程\TCP\异步">
       <UniqueIdentifier>{b4e72eef-5651-4a1d-b907-31809ddf1590}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\通过心跳检测服务\消息定义">
+    <Filter Include="检测\检测进程\消息定义">
       <UniqueIdentifier>{7618e986-342d-4d67-a694-ff70c12c9bf2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\通过心跳检测服务\SSL">
-      <UniqueIdentifier>{5cf301f2-001a-4bbe-9668-5e69fb297057}</UniqueIdentifier>
+    <Filter Include="检测\定时重启服务">
+      <UniqueIdentifier>{52c53a77-ffc9-4e0e-9016-04e3f952a340}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,16 +78,16 @@
       <Filter>检测\检测进程</Filter>
     </ClCompile>
     <ClCompile Include="MonitorServiceThread.cpp">
-      <Filter>检测\通过心跳检测服务</Filter>
+      <Filter>检测\定时重启服务</Filter>
     </ClCompile>
     <ClCompile Include="network\CustomMessage.cpp">
-      <Filter>检测\通过心跳检测服务\消息定义</Filter>
+      <Filter>检测\检测进程\消息定义</Filter>
     </ClCompile>
     <ClCompile Include="network\TCPClientASync.cpp">
-      <Filter>检测\通过心跳检测服务\TCP\异步</Filter>
+      <Filter>检测\检测进程\TCP\异步</Filter>
     </ClCompile>
     <ClCompile Include="network\TCPClientSync.cpp">
-      <Filter>检测\通过心跳检测服务\TCP\同步</Filter>
+      <Filter>检测\检测进程\TCP\同步</Filter>
     </ClCompile>
     <ClCompile Include="config\ConfigManager.cpp">
       <Filter>配置文件</Filter>
@@ -125,19 +125,19 @@
       <Filter>检测\检测进程</Filter>
     </ClInclude>
     <ClInclude Include="MonitorServiceThread.h">
-      <Filter>检测\通过心跳检测服务</Filter>
+      <Filter>检测\定时重启服务</Filter>
     </ClInclude>
     <ClInclude Include="network\CustomMessage.h">
-      <Filter>检测\通过心跳检测服务\消息定义</Filter>
+      <Filter>检测\检测进程\消息定义</Filter>
     </ClInclude>
     <ClInclude Include="network\MsgHeader.h">
-      <Filter>检测\通过心跳检测服务\消息定义</Filter>
+      <Filter>检测\检测进程\消息定义</Filter>
     </ClInclude>
     <ClInclude Include="network\TCPClientASync.h">
-      <Filter>检测\通过心跳检测服务\TCP\异步</Filter>
+      <Filter>检测\检测进程\TCP\异步</Filter>
     </ClInclude>
     <ClInclude Include="network\TCPClientSync.h">
-      <Filter>检测\通过心跳检测服务\TCP\同步</Filter>
+      <Filter>检测\检测进程\TCP\同步</Filter>
     </ClInclude>
     <ClInclude Include="config\ConfigManager.h">
       <Filter>配置文件</Filter>

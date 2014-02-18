@@ -27,8 +27,8 @@ public:
 
 	void TerminateService(std::string process);
 	void TerminateAllService();
-	bool IsRebootByDate(std::string date);
-	bool IsRebootByTime(std::string time);
+
+	
 	int StartService(std::string sExe);
 };
 

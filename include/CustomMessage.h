@@ -9,12 +9,11 @@
 #include <boost/checked_delete.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "MsgHeader.h"
 //#include "tcpsession.h"
 
+#include "imessage.h"
 
 /*
 独立出来的原因，
@@ -24,40 +23,50 @@
 
 
 
-class CustomMessage
+
+class CustomMessage : public IMessage
 {
 public:
-	CustomMessage();
+	CustomMessage(int msgType);
 
 private:
 	// 消息头
-	struct MsgHeader m_MsgHeader;
-	//std::vector<char> m_MsgHeader;
+	struct MsgHeader msgHeader;
+	
 
-	// 消息内容
-	std::vector<char> m_MsgContent;
+	
 
-
+	
 	
 
 public:
 	
+	
 
 	
-	void SetMsgHeader(unsigned char MsgType, int FunctionNo, unsigned char zip=0);
-	bool ParseMsgHeader();
+	
+	bool DecoderMsgHeader();
+
+
+	/*
 	PMSG_HEADER GetMsgHeader();
-	size_t GetMsgHeaderSize();
-
-
-	void SetMsgContent(std::string content);
-	char * GetMsgContent();
-	size_t GetMsgContentSize();
-	std::string GetMsgContentString();
-
-	void destroy();
 	
 
+
+	
+	char * GetMsgContent();
+	
+	
+
+	
+	
+
+	
+	
+
+	*/
+
+	
 };
 
 

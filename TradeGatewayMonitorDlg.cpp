@@ -7,14 +7,14 @@
 #include "TradeGatewayMonitorDlg.h"
 
 #include "MonitorProcessThread.h"
-#include "config/ConfigManager.h"
+#include "ConfigManager.h"
 #include "resource.h"
 
-#include "network/TCPClientSync.h"
-#include "network/TCPClientASync.h"
+#include "TCPClientSync.h"
+#include "TCPClientASync.h"
 
 #include "MonitorServiceThread.h"
-#include "output/FileLog.h"
+#include "FileLog.h"
 
 
 
@@ -188,7 +188,7 @@ void CTradeGatewayMonitorDlg::OnBnClickedButton2()
 	// TODO: 在此添加控件通知处理程序代码
 	
 
-	for (int i=0; i < 86400; i++)
+	for (int i=0; i < 1; i++)
 	{
 		TRACE("==================i=%d===============\n", i);
 		CTCPClientSync conn;

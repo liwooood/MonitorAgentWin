@@ -1,29 +1,14 @@
-#include "stdafx.h"
+#include "SSLClientSync.h"
 
-#include <boost/range/iterator_range.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/filter/zlib.hpp>
-#include <boost/iostreams/device/back_inserter.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/zlib.hpp>
-#include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/iostreams/filter/zlib.hpp>
-#include <boost/bind.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/system/system_error.hpp>
 
-#include "TCPClientSync.h"
 #include "FileLog.h"
 #include "ConfigManager.h"
 
 
 
-CTCPClientSync::CTCPClientSync(void)
-	:socket(ios)
+
+SSLClientSync::SSLClientSync(boost::asio::ssl::context& context)
+	:socket(ios, context)
 	,deadline(ios)
 {
 	
@@ -33,14 +18,35 @@ CTCPClientSync::CTCPClientSync(void)
 	deadline.expires_at(boost::posix_time::pos_infin);
 	
 	check_deadline();
+
+	//socket.set_verify_mode(boost::asio::ssl::verify_peer);
+	//socket.set_verify_callback(boost::bind(&SSLClientSync::verify_certificate, this, _1, _2));
 }
 
-CTCPClientSync::~CTCPClientSync(void)
+ bool SSLClientSync::verify_certificate(bool preverified,boost::asio::ssl::verify_context& ctx)
+ {
+	// The verify callback can be used to check whether the certificate that is
+    // being presented is valid for the peer. For example, RFC 2818 describes
+    // the steps involved in doing this for HTTPS. Consult the OpenSSL
+    // documentation for more details. Note that the callback is called once
+    // for each certificate in the certificate chain, starting from the root
+    // certificate authority.
+
+    // In this example we will simply print the certificate's subject name.
+    char subject_name[256];
+    X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+    X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+    std::cout << "Verifying " << subject_name << "\n";
+
+    return preverified;
+ }
+
+SSLClientSync::~SSLClientSync(void)
 {
 }
 
 // 超时回调函数
-void CTCPClientSync::check_deadline()
+void SSLClientSync::check_deadline()
 {
 	
 	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now())
@@ -52,11 +58,11 @@ void CTCPClientSync::check_deadline()
 		deadline.expires_at(boost::posix_time::pos_infin);
 	}
 	
-	deadline.async_wait( boost::bind(&CTCPClientSync::check_deadline, this) );
+	deadline.async_wait( boost::bind(&SSLClientSync::check_deadline, this) );
 }
 
 // 建立连接
-bool CTCPClientSync::Connect(std::string ip, int port)
+bool SSLClientSync::Connect(std::string ip, int port)
 {
 	try
 	{
@@ -75,20 +81,17 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 
 		// 设置连接超时
 		int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
-		std::string sConnectTimeout = boost::lexical_cast<std::string>(nConnectTimeout);
-		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "连接超时时间:" + sConnectTimeout);
-
 		deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
 
 		ec = boost::asio::error::would_block;
 
-		boost::asio::async_connect(socket, iterator, boost::lambda::var(ec) = boost::lambda::_1);
+		boost::asio::async_connect(socket.lowest_layer(), iterator, boost::lambda::var(ec) = boost::lambda::_1);
 	
 		do 
 			ios.run_one(); 
 		while (ec == boost::asio::error::would_block);
 
-		if (ec || !socket.is_open())
+		if (ec)
 		{
 			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 			std::string sErrMsg = ec.message();
@@ -100,7 +103,26 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 			return m_bConnected;
 		}
 
-		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "连接交易网关成功!");
+		
+		ec = boost::asio::error::would_block;
+		socket.async_handshake(boost::asio::ssl::stream_base::client, boost::lambda::var(ec) = boost::lambda::_1);
+		do 
+			ios.run_one(); 
+		while (ec == boost::asio::error::would_block);
+		if (ec)
+		{
+			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
+			std::string sErrMsg = ec.message();
+			std::string sErrInfo = "连接交易网关握手失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+			gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
+			
+			
+			m_bConnected = false;
+			return m_bConnected;
+		}
+		
+
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接交易网关成功!");
 		m_bConnected = true;
 		return m_bConnected;
 	}
@@ -112,14 +134,15 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 	}
 }
 
-bool CTCPClientSync::IsConnected()
+bool SSLClientSync::IsConnected()
 {
+	
 	return m_bConnected;
 }
 
 
 
-bool CTCPClientSync::Write(CustomMessage * pReq)
+bool SSLClientSync::Write(CustomMessage * pReq)
 {
 	if (!WriteMsgHeader(pReq))
 		return false;
@@ -131,7 +154,7 @@ bool CTCPClientSync::Write(CustomMessage * pReq)
 }
 
 // 写包头
-bool CTCPClientSync::WriteMsgHeader(CustomMessage * pReq)
+bool SSLClientSync::WriteMsgHeader(CustomMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -161,7 +184,7 @@ bool CTCPClientSync::WriteMsgHeader(CustomMessage * pReq)
 	return m_bConnected;
 }
 
-bool CTCPClientSync::WriteMsgContent(CustomMessage * pReq)
+bool SSLClientSync::WriteMsgContent(CustomMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -189,7 +212,7 @@ bool CTCPClientSync::WriteMsgContent(CustomMessage * pReq)
 	return m_bConnected;
 }
 
-bool CTCPClientSync::Read(CustomMessage * pRes)
+bool SSLClientSync::Read(CustomMessage * pRes)
 {
 	if (!ReadMsgHeader(pRes))
 		return false;
@@ -202,7 +225,7 @@ bool CTCPClientSync::Read(CustomMessage * pRes)
 }
 
 // 读包头
-bool CTCPClientSync::ReadMsgHeader(CustomMessage * pRes)
+bool SSLClientSync::ReadMsgHeader(CustomMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -230,7 +253,7 @@ bool CTCPClientSync::ReadMsgHeader(CustomMessage * pRes)
 }
 
 // 读包内容
-bool CTCPClientSync::ReadMsgContent(CustomMessage * pRes)
+bool SSLClientSync::ReadMsgContent(CustomMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -264,15 +287,15 @@ bool CTCPClientSync::ReadMsgContent(CustomMessage * pRes)
 }
 
 // 关闭连接
-void CTCPClientSync::Close()
+void SSLClientSync::Close()
 {
 	m_bConnected = false;
 
 	boost::system::error_code ec;
 
 	
-
-	socket.close(ec);
+	
+	socket.shutdown(ec);
 	
 	if (ec)
 	{
@@ -280,10 +303,10 @@ void CTCPClientSync::Close()
 	}
 
 	
-	gFileLog::instance().Log(LOG_LEVEL_DEBUG, "断开交易网关!");
+	gFileLog::instance().Log(LOG_LEVEL_ERROR, "断开交易网关!");
 }
 
-bool CTCPClientSync::ReConnect()
+bool SSLClientSync::ReConnect()
 {
 	Close();
 
@@ -291,7 +314,7 @@ bool CTCPClientSync::ReConnect()
 }
 
 // 发送心跳包
-bool CTCPClientSync::HeartBeat()
+bool SSLClientSync::HeartBeat()
 {
 	if (!m_bConnected)
 		return false;
@@ -302,13 +325,15 @@ bool CTCPClientSync::HeartBeat()
 
 	bool bRet = false;
 
+	// 开始时间
+	 boost::posix_time::ptime time_sent = boost::posix_time::microsec_clock::universal_time();
 	
 	// 设置读写超时
 	int nReadWriteTimeout = sConfigManager::instance().m_nReadWriteTimeout;
 	deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
 
 	// 发送请求
-	CustomMessage * pReq = new CustomMessage(MSG_TYPE_TCP_NEW);
+	CustomMessage * pReq = new CustomMessage(MSG_TYPE_SSL_NEW);
 
 	
 
@@ -323,19 +348,75 @@ bool CTCPClientSync::HeartBeat()
 		return false;
 
 	// 接收应答
-	CustomMessage * pRes = new CustomMessage(MSG_TYPE_TCP_NEW);
+	CustomMessage * pRes = new CustomMessage(MSG_TYPE_SSL_NEW);
 	bRet = Read(pRes);
 	if (bRet)
 	{
 		//std::string response(pRes->GetPkgBody().begin(),pRes->GetPkgBody().end());
-		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "应答内容：" + pRes->GetMsgContentString());
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "应答内容：" + pRes->GetMsgContentString());
 	}
 	else
 	{
 	}
 	delete pRes;	
 
-	
+	// 结束时间
+	boost::posix_time::ptime time_received = boost::posix_time::microsec_clock::universal_time();
+
+	// 运行时间
+	int nRuntime = (time_received - time_sent).total_microseconds();
+	//gFileLog::instance().Log("执行时间：" + boost::lexical_cast<std::string>(nRuntime));
 
 	return bRet;
 }
+
+void SSLClientSync::SetConnectTimeout(int connecTimeout)
+{
+	this->connectTimeout = connectTimeout;
+}
+
+void SSLClientSync::SetReadWriteTimeout(int readWriteTimeout)
+{
+	this->readWriteTimeout = readWriteTimeout;
+}
+/*
+bool SSLClientSync::Send(std::string& request, std::string& response)
+{
+	bool bRet = false;
+
+	if (request.empty())
+		return bRet;
+	
+
+	// 发送请求
+	CustomMessage * pReq = new CustomMessage(MSG_TYPE_SSL_NEW);
+
+	
+
+	pReq->SetMsgContent(request);
+	//pReq->SetMsgHeader();
+
+	int temp = pReq->GetMsgHeaderSize();
+
+	bRet = Write(pReq);
+	delete pReq;
+	if (!bRet)
+		return false;
+
+	// 接收应答
+	CustomMessage * pRes = new CustomMessage(MSG_TYPE_SSL_NEW);
+	bRet = Read(pRes);
+	if (bRet)
+	{
+		response = pRes->GetMsgContentString();
+		//std::string response(pRes->GetPkgBody().begin(),pRes->GetPkgBody().end());
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "应答内容：" + pRes->GetMsgContentString());
+	}
+	else
+	{
+	}
+	delete pRes;	
+
+	return true;
+}
+*/

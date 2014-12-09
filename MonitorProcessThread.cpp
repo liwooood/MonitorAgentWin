@@ -12,9 +12,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "config/ConfigManager.h"
-#include "output/FileLog.h"
-#include "network/TCPClientSync.h"
+#include "ConfigManager.h"
+#include "FileLog.h"
+#include "TCPClientSync.h"
 
 
 

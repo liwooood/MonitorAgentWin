@@ -18,8 +18,8 @@
 
 #include "TCPClientASync.h"
 
-#include "output/FileLog.h"
-#include "config/ConfigManager.h"
+#include "FileLog.h"
+#include "ConfigManager.h"
 
 
 /*

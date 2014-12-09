@@ -15,7 +15,7 @@
   <readwrite_timeout>3</readwrite_timeout>
   
   <!--日志级别0 DEBUG, 1 INFO, 2 WARN, 3ERROR-->
-  <LogLevel>3</LogLevel>
+  <LogLevel>0</LogLevel>
   
    <service>
     <enable>1</enable>
@@ -24,7 +24,7 @@
     <reboot_date>all</reboot_date>
     <!-- 0-24 -->
     <reboot_time>22:00:00</reboot_time>
-    <process>E:\Trade\TradeGateway\bin_release\tradegateway.exe</process>
+    <process>E:\Trade\TradeGateway\bin_debug\tradegateway.exe</process>
     <!-- 服务地址 -->
     <webtrade>127.0.0.1:5003</webtrade>
   </service>

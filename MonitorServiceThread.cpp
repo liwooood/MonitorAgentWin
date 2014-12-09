@@ -5,10 +5,10 @@
 #include <process.h>
 
 #include "MonitorServiceThread.h"
-#include "config/ConfigManager.h"
-#include "network/TCPClientSync.h"
+#include "ConfigManager.h"
+#include "TCPClientSync.h"
 #include "MonitorProcessThread.h"
-#include "output/FileLog.h"
+#include "FileLog.h"
 
 
 CMonitorServiceThread g_MonitorServiceThread;

@@ -12,8 +12,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/asio/deadline_timer.hpp>
 
-#include "network/MsgHeader.h"
-#include "network/CustomMessage.h"
+#include "MsgHeader.h"
+#include "CustomMessage.h"
 
 /*
 问题一：超时

@@ -3,11 +3,13 @@
 
 #include "FileLog.h"
 #include "ConfigManager.h"
+#include "ssl_message.h"
 
 
 
 
 SSLClientSync::SSLClientSync(boost::asio::ssl::context& context)
+	
 	:socket(ios, context)
 	,deadline(ios)
 {
@@ -51,8 +53,9 @@ void SSLClientSync::check_deadline()
 	
 	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now())
 	{
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接超时或读写超时");
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "SSL连接超时或读写超时");
 
+		//m_bConnected = false;
 		Close();
 
 		deadline.expires_at(boost::posix_time::pos_infin);
@@ -95,7 +98,7 @@ bool SSLClientSync::Connect(std::string ip, int port)
 		{
 			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 			std::string sErrMsg = ec.message();
-			std::string sErrInfo = "连接交易网关失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+			std::string sErrInfo = "SSL连接交易网关失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 			gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 			
 			
@@ -113,7 +116,7 @@ bool SSLClientSync::Connect(std::string ip, int port)
 		{
 			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 			std::string sErrMsg = ec.message();
-			std::string sErrInfo = "连接交易网关握手失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+			std::string sErrInfo = "SSL连接交易网关握手失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 			gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 			
 			
@@ -122,13 +125,13 @@ bool SSLClientSync::Connect(std::string ip, int port)
 		}
 		
 
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接交易网关成功!");
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "SSL连接交易网关成功!");
 		m_bConnected = true;
 		return m_bConnected;
 	}
 	catch(std::exception& e)
 	{
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接交易网关异常：" + std::string(e.what()));
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "SSL连接交易网关异常：" + std::string(e.what()));
 		m_bConnected = false;
 		return m_bConnected;
 	}
@@ -142,7 +145,7 @@ bool SSLClientSync::IsConnected()
 
 
 
-bool SSLClientSync::Write(CustomMessage * pReq)
+bool SSLClientSync::Write(IMessage * pReq)
 {
 	if (!WriteMsgHeader(pReq))
 		return false;
@@ -154,14 +157,14 @@ bool SSLClientSync::Write(CustomMessage * pReq)
 }
 
 // 写包头
-bool SSLClientSync::WriteMsgHeader(CustomMessage * pReq)
+bool SSLClientSync::WriteMsgHeader(IMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
 	
 	
 	boost::asio::async_write(socket, 
-		boost::asio::buffer(pReq->GetMsgHeader(), sizeof(MSG_HEADER)), 
+		boost::asio::buffer(pReq->GetMsgHeader(), pReq->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
 		boost::lambda::var(ec) = boost::lambda::_1);
 	
@@ -173,7 +176,7 @@ bool SSLClientSync::WriteMsgHeader(CustomMessage * pReq)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "写包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "SSL写包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -184,7 +187,7 @@ bool SSLClientSync::WriteMsgHeader(CustomMessage * pReq)
 	return m_bConnected;
 }
 
-bool SSLClientSync::WriteMsgContent(CustomMessage * pReq)
+bool SSLClientSync::WriteMsgContent(IMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -201,7 +204,7 @@ bool SSLClientSync::WriteMsgContent(CustomMessage * pReq)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "写包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "SSL写包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -212,7 +215,7 @@ bool SSLClientSync::WriteMsgContent(CustomMessage * pReq)
 	return m_bConnected;
 }
 
-bool SSLClientSync::Read(CustomMessage * pRes)
+bool SSLClientSync::Read(IMessage * pRes)
 {
 	if (!ReadMsgHeader(pRes))
 		return false;
@@ -225,12 +228,12 @@ bool SSLClientSync::Read(CustomMessage * pRes)
 }
 
 // 读包头
-bool SSLClientSync::ReadMsgHeader(CustomMessage * pRes)
+bool SSLClientSync::ReadMsgHeader(IMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
 	boost::asio::async_read(socket, 
-		boost::asio::buffer(pRes->GetMsgHeader(), sizeof(MSG_HEADER)), 
+		boost::asio::buffer(pRes->GetMsgHeader(), pRes->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
 		boost::lambda::var(ec) = boost::lambda::_1);
 	do 
@@ -241,7 +244,7 @@ bool SSLClientSync::ReadMsgHeader(CustomMessage * pRes)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "读包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "SSL读包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -253,7 +256,7 @@ bool SSLClientSync::ReadMsgHeader(CustomMessage * pRes)
 }
 
 // 读包内容
-bool SSLClientSync::ReadMsgContent(CustomMessage * pRes)
+bool SSLClientSync::ReadMsgContent(IMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -275,7 +278,7 @@ bool SSLClientSync::ReadMsgContent(CustomMessage * pRes)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "读包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "SSL读包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -289,21 +292,25 @@ bool SSLClientSync::ReadMsgContent(CustomMessage * pRes)
 // 关闭连接
 void SSLClientSync::Close()
 {
-	m_bConnected = false;
-
-	boost::system::error_code ec;
-
-	
-	
-	socket.shutdown(ec);
-	
-	if (ec)
+//	if (m_bConnected)
 	{
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "断开交易网关异常：" + ec.message());
-	}
+		m_bConnected = false;
+
+		boost::system::error_code ec;
+
+		socket.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+	
+		socket.lowest_layer().close();
+	
+	
+		if (ec)
+		{
+			gFileLog::instance().Log(LOG_LEVEL_ERROR, "SSL断开交易网关异常：" + ec.message());
+		}
 
 	
-	gFileLog::instance().Log(LOG_LEVEL_ERROR, "断开交易网关!");
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "SSL断开交易网关!");
+	}
 }
 
 bool SSLClientSync::ReConnect()
@@ -333,14 +340,22 @@ bool SSLClientSync::HeartBeat()
 	deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
 
 	// 发送请求
-	CustomMessage * pReq = new CustomMessage(MSG_TYPE_SSL_NEW);
+	IMessage * pReq = new ssl_message();
 
-	
+	quote::PkgHeader pbHeader;
+	pbHeader.set_zip(false);
+	pbHeader.set_bodysize(request.size());
+	pbHeader.set_ver(1);
+	pbHeader.set_enc(false);
+	pbHeader.set_more(false);
+	pbHeader.set_msgtype(quote::PkgHeader::REQ_TRADE);
+	pbHeader.set_errcode(0);
+	pbHeader.SerializeToArray(&(pReq->m_MsgHeader.front()), pbHeader.ByteSize());		
 
 	pReq->SetMsgContent(request);
-//	pReq->SetMsgHeader(MSG_TYPE_REQUEST, FUNCTION_HEARTBEAT);
 
-	int temp = pReq->GetMsgHeaderSize();
+
+	
 
 	bRet = Write(pReq);
 	delete pReq;
@@ -348,12 +363,12 @@ bool SSLClientSync::HeartBeat()
 		return false;
 
 	// 接收应答
-	CustomMessage * pRes = new CustomMessage(MSG_TYPE_SSL_NEW);
+	IMessage * pRes = new ssl_message();
 	bRet = Read(pRes);
 	if (bRet)
 	{
 		//std::string response(pRes->GetPkgBody().begin(),pRes->GetPkgBody().end());
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "应答内容：" + pRes->GetMsgContentString());
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "SSL应答内容：" + pRes->GetMsgContentString());
 	}
 	else
 	{
@@ -364,7 +379,7 @@ bool SSLClientSync::HeartBeat()
 	boost::posix_time::ptime time_received = boost::posix_time::microsec_clock::universal_time();
 
 	// 运行时间
-	int nRuntime = (time_received - time_sent).total_microseconds();
+	//int nRuntime = (time_received - time_sent).total_microseconds();
 	//gFileLog::instance().Log("执行时间：" + boost::lexical_cast<std::string>(nRuntime));
 
 	return bRet;

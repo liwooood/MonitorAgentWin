@@ -102,7 +102,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>.\;D:\boost\1.55\include\boost-1_55</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;.\include;D:\boost\1.55\include\boost-1_55\;D:\protobuf\protobuf-2.4.1\src;d:\openssl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -116,7 +116,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>D:\boost\1.55\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\boost\1.55\lib;D:\protobuf\protobuf-2.4.1\vsprojects\Release;d:\openssl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -146,7 +147,9 @@
     <ClInclude Include="include\FileLog.h" />
     <ClInclude Include="include\IMessage.h" />
     <ClInclude Include="include\MsgHeader.h" />
+    <ClInclude Include="include\SSLClientSync.h" />
     <ClInclude Include="include\ssl_message.h" />
+    <ClInclude Include="include\TCPClientSync.h" />
     <ClInclude Include="include\tcp_message_old.h" />
     <ClInclude Include="MonitorServiceThread.h" />
     <ClInclude Include="Resource.h" />

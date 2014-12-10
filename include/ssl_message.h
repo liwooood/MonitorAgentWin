@@ -20,7 +20,7 @@
 //#include "ssl_session.h"
 
 
-#include "tradelog.pb.h"
+
 #include "imessage.h"
 
 class ssl_message : public IMessage

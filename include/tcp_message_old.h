@@ -15,7 +15,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "tradelog.pb.h"
+
 #include "imessage.h"
 
 class tcp_message_old : public IMessage

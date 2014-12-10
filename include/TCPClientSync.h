@@ -35,13 +35,13 @@ public:
 	bool HeartBeat();
 
 private:
-	bool Write(CustomMessage * pReq);
-	bool WriteMsgHeader(CustomMessage * pReq);
-	bool WriteMsgContent(CustomMessage * pReq);
+	bool Write(IMessage * pReq);
+	bool WriteMsgHeader(IMessage * pReq);
+	bool WriteMsgContent(IMessage * pReq);
 
-	bool Read(CustomMessage * pRes);
-	bool ReadMsgHeader(CustomMessage * pRes);
-	bool ReadMsgContent(CustomMessage * pRes);
+	bool Read(IMessage * pRes);
+	bool ReadMsgHeader(IMessage * pRes);
+	bool ReadMsgContent(IMessage * pRes);
 
 	void check_deadline();
 	std::string decompress(std::string data);

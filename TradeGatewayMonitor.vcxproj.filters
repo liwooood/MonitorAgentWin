@@ -175,6 +175,12 @@
     <ClInclude Include="include\MsgHeader.h">
       <Filter>检测\心跳\SSL &amp; TCP</Filter>
     </ClInclude>
+    <ClInclude Include="include\SSLClientSync.h">
+      <Filter>检测\心跳</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TCPClientSync.h">
+      <Filter>检测\心跳</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\TradeGatewayMonitor.ico">

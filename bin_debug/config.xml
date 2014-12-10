@@ -10,7 +10,7 @@
   <service_init>10</service_init>
   
   <!---连接超时，单位秒-->
-  <connect_timeout>1</connect_timeout>
+  <connect_timeout>5</connect_timeout>
   <!---读写超时，单位秒-->
   <readwrite_timeout>3</readwrite_timeout>
   

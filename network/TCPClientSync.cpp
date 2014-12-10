@@ -19,6 +19,7 @@
 #include "TCPClientSync.h"
 #include "FileLog.h"
 #include "ConfigManager.h"
+#include "tcp_message_old.h"
 
 
 
@@ -45,7 +46,7 @@ void CTCPClientSync::check_deadline()
 	
 	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now())
 	{
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接超时或读写超时");
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "TCP连接超时或读写超时");
 
 		Close();
 
@@ -92,7 +93,7 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 		{
 			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 			std::string sErrMsg = ec.message();
-			std::string sErrInfo = "连接交易网关失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+			std::string sErrInfo = "TCP连接交易网关失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 			gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 			
 			
@@ -100,13 +101,13 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 			return m_bConnected;
 		}
 
-		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "连接交易网关成功!");
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "TCP连接交易网关成功!");
 		m_bConnected = true;
 		return m_bConnected;
 	}
 	catch(std::exception& e)
 	{
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接交易网关异常：" + std::string(e.what()));
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "TCP连接交易网关异常：" + std::string(e.what()));
 		m_bConnected = false;
 		return m_bConnected;
 	}
@@ -119,7 +120,7 @@ bool CTCPClientSync::IsConnected()
 
 
 
-bool CTCPClientSync::Write(CustomMessage * pReq)
+bool CTCPClientSync::Write(IMessage * pReq)
 {
 	if (!WriteMsgHeader(pReq))
 		return false;
@@ -131,14 +132,14 @@ bool CTCPClientSync::Write(CustomMessage * pReq)
 }
 
 // 写包头
-bool CTCPClientSync::WriteMsgHeader(CustomMessage * pReq)
+bool CTCPClientSync::WriteMsgHeader(IMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
 	
 	
 	boost::asio::async_write(socket, 
-		boost::asio::buffer(pReq->GetMsgHeader(), sizeof(MSG_HEADER)), 
+		boost::asio::buffer(pReq->GetMsgHeader(), pReq->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
 		boost::lambda::var(ec) = boost::lambda::_1);
 	
@@ -150,7 +151,7 @@ bool CTCPClientSync::WriteMsgHeader(CustomMessage * pReq)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "写包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "TCP写包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -161,7 +162,7 @@ bool CTCPClientSync::WriteMsgHeader(CustomMessage * pReq)
 	return m_bConnected;
 }
 
-bool CTCPClientSync::WriteMsgContent(CustomMessage * pReq)
+bool CTCPClientSync::WriteMsgContent(IMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -178,7 +179,7 @@ bool CTCPClientSync::WriteMsgContent(CustomMessage * pReq)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "写包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "TCP写包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -189,7 +190,7 @@ bool CTCPClientSync::WriteMsgContent(CustomMessage * pReq)
 	return m_bConnected;
 }
 
-bool CTCPClientSync::Read(CustomMessage * pRes)
+bool CTCPClientSync::Read(IMessage * pRes)
 {
 	if (!ReadMsgHeader(pRes))
 		return false;
@@ -202,12 +203,12 @@ bool CTCPClientSync::Read(CustomMessage * pRes)
 }
 
 // 读包头
-bool CTCPClientSync::ReadMsgHeader(CustomMessage * pRes)
+bool CTCPClientSync::ReadMsgHeader(IMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
 	boost::asio::async_read(socket, 
-		boost::asio::buffer(pRes->GetMsgHeader(), sizeof(MSG_HEADER)), 
+		boost::asio::buffer(pRes->GetMsgHeader(), pRes->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
 		boost::lambda::var(ec) = boost::lambda::_1);
 	do 
@@ -218,7 +219,7 @@ bool CTCPClientSync::ReadMsgHeader(CustomMessage * pRes)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "读包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "TCP读包头失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -230,7 +231,7 @@ bool CTCPClientSync::ReadMsgHeader(CustomMessage * pRes)
 }
 
 // 读包内容
-bool CTCPClientSync::ReadMsgContent(CustomMessage * pRes)
+bool CTCPClientSync::ReadMsgContent(IMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
@@ -252,7 +253,7 @@ bool CTCPClientSync::ReadMsgContent(CustomMessage * pRes)
 	{
 		std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
 		std::string sErrMsg = ec.message();
-		std::string sErrInfo = "读包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
+		std::string sErrInfo = "TCP读包内容失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
 		gFileLog::instance().Log(LOG_LEVEL_ERROR, sErrInfo);
 
 		m_bConnected = false;
@@ -271,16 +272,16 @@ void CTCPClientSync::Close()
 	boost::system::error_code ec;
 
 	
-
+	socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
 	socket.close(ec);
 	
 	if (ec)
 	{
-		gFileLog::instance().Log(LOG_LEVEL_ERROR, "断开交易网关异常：" + ec.message());
+		gFileLog::instance().Log(LOG_LEVEL_ERROR, "TCP断开交易网关异常：" + ec.message());
 	}
 
 	
-	gFileLog::instance().Log(LOG_LEVEL_DEBUG, "断开交易网关!");
+	gFileLog::instance().Log(LOG_LEVEL_DEBUG, "TCP断开交易网关!");
 }
 
 bool CTCPClientSync::ReConnect()
@@ -308,14 +309,16 @@ bool CTCPClientSync::HeartBeat()
 	deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
 
 	// 发送请求
-	CustomMessage * pReq = new CustomMessage(MSG_TYPE_TCP_NEW);
+	IMessage * pReq = new tcp_message_old();
 
-	
+	int msgHeaderSize = request.size();
+		msgHeaderSize = htonl(msgHeaderSize);
+		memcpy(&(pReq->m_MsgHeader.front()), &msgHeaderSize, 4);
 
 	pReq->SetMsgContent(request);
-//	pReq->SetMsgHeader(MSG_TYPE_REQUEST, FUNCTION_HEARTBEAT);
 
-	int temp = pReq->GetMsgHeaderSize();
+
+	
 
 	bRet = Write(pReq);
 	delete pReq;
@@ -323,7 +326,7 @@ bool CTCPClientSync::HeartBeat()
 		return false;
 
 	// 接收应答
-	CustomMessage * pRes = new CustomMessage(MSG_TYPE_TCP_NEW);
+	IMessage * pRes = new tcp_message_old();
 	bRet = Read(pRes);
 	if (bRet)
 	{

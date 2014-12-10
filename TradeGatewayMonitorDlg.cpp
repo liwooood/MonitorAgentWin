@@ -11,7 +11,7 @@
 #include "resource.h"
 
 #include "TCPClientSync.h"
-#include "TCPClientASync.h"
+#include "SSLClientSync.h"
 
 #include "MonitorServiceThread.h"
 #include "FileLog.h"
@@ -142,10 +142,10 @@ void CTradeGatewayMonitorDlg::Init()
 	gFileLog::instance().Log(LOG_LEVEL_INFO, "监控代理启动");
 
 	// 启动进程监控
-	g_MonitorProcessThread.start();	
+	//g_MonitorProcessThread.start();	
 
 	// 定时重启
-	g_MonitorServiceThread.start();
+	//g_MonitorServiceThread.start();
 }
 
 
@@ -187,17 +187,21 @@ void CTradeGatewayMonitorDlg::OnBnClickedButton2()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	
+		boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+		SSLClientSync conn(ctx);
+
+		//CTCPClientSync conn;
 
 	for (int i=0; i < 1; i++)
 	{
 		TRACE("==================i=%d===============\n", i);
-		CTCPClientSync conn;
+		
 
-		conn.Connect("127.0.0.1", 5003);
+	
+		
 
+		conn.Connect("127.0.0.1", 5000);
 		conn.HeartBeat();
-			
-
 		conn.Close();
 	}
 

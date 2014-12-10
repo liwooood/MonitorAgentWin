@@ -30,11 +30,13 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedExit();
-	virtual void OnCancel();
+	
 
 	void Init();
-	afx_msg void OnBnClickedTestService();
+	
 	afx_msg void OnBnClickedOpenLog();
-	afx_msg void OnBnClickedTestService2();
-	afx_msg void OnBnClickedButton2();
+	
+	
+	afx_msg void OnBnClickedTestSslPb();
+	afx_msg void OnBnClickedTestTcp();
 };

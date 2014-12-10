@@ -44,10 +44,12 @@ BEGIN_MESSAGE_MAP(CTradeGatewayMonitorDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_EXIT, &CTradeGatewayMonitorDlg::OnBnClickedExit)
-	ON_BN_CLICKED(IDC_TEST_SERVICE, &CTradeGatewayMonitorDlg::OnBnClickedTestService)
+	
 	ON_BN_CLICKED(IDC_OPEN_LOG, &CTradeGatewayMonitorDlg::OnBnClickedOpenLog)
-	ON_BN_CLICKED(IDC_TEST_SERVICE2, &CTradeGatewayMonitorDlg::OnBnClickedTestService2)
-	ON_BN_CLICKED(IDC_BUTTON2, &CTradeGatewayMonitorDlg::OnBnClickedButton2)
+	
+	
+	ON_BN_CLICKED(IDC_TEST_SSL_PB, &CTradeGatewayMonitorDlg::OnBnClickedTestSslPb)
+	ON_BN_CLICKED(IDC_TEST_TCP, &CTradeGatewayMonitorDlg::OnBnClickedTestTcp)
 END_MESSAGE_MAP()
 
 
@@ -123,9 +125,6 @@ void CTradeGatewayMonitorDlg::OnBnClickedExit()
 	EndDialog(0);
 }
 
-void CTradeGatewayMonitorDlg::OnCancel()
-{
-}
 
 void CTradeGatewayMonitorDlg::Init()
 {
@@ -156,41 +155,16 @@ void CTradeGatewayMonitorDlg::OnBnClickedOpenLog()
 }
 
 
-void CTradeGatewayMonitorDlg::OnBnClickedTestService()
+
+
+
+void CTradeGatewayMonitorDlg::OnBnClickedTestSslPb()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	
-}
-
-
-void CTradeGatewayMonitorDlg::OnBnClickedTestService2()
-{
-	/*
-CTCPClientASync  * pTcpClientAsync = new CTCPClientASync();
-
-pTcpClientAsync->init();
-
-	pTcpClientAsync->Connect("127.0.0.1", 5001);
-
-	for (int i=0; i<300; i++)
-	{
-		
-		pTcpClientAsync->HeartBeat();
-	}
-
-	//conn.Close();
-	*/
-}
-
-
-void CTradeGatewayMonitorDlg::OnBnClickedButton2()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	
-		boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+	boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
 		SSLClientSync conn(ctx);
 
-		//CTCPClientSync conn;
+		
 
 	for (int i=0; i < 1; i++)
 	{
@@ -204,6 +178,24 @@ void CTradeGatewayMonitorDlg::OnBnClickedButton2()
 		conn.HeartBeat();
 		conn.Close();
 	}
+}
+
+
+void CTradeGatewayMonitorDlg::OnBnClickedTestTcp()
+{
+	// TODO: 在此添加控件通知处理程序代码
+		CTCPClientSync conn;
+
+	for (int i=0; i < 1; i++)
+	{
+		TRACE("==================i=%d===============\n", i);
+		
 
 	
+		
+
+		conn.Connect("127.0.0.1", 5001);
+		conn.HeartBeat();
+		conn.Close();
+	}
 }

@@ -4,14 +4,17 @@
 //
 #define IDD_TRADEGATEWAYMONITOR_DIALOG  102
 #define IDR_MAINFRAME                   128
-#define IDC_BUTTON1                     1000
+
 #define IDC_EXIT                        1000
-#define IDC_BUTTON2                     1001
+
+#define IDC_TEST_TCP                    1001
 #define IDC_SERVICE_NAME                1002
 #define IDC_PROCSS_FILE                 1003
 #define IDC_PROCESS_STATUS              1004
 #define IDC_TEST_SERVICE                1005
-#define IDC_BUTTON3                     1006
+#define IDC_BUTTON4                     1005
+#define IDC_TEST_SSL_PB                 1005
+
 #define IDC_OPEN_LOG                    1006
 #define IDC_TEST_SERVICE2               1007
 

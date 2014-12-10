@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "MonitorProcessThread.h"
+
 
 
 
@@ -12,9 +12,12 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "MonitorProcessThread.h"
+
 #include "ConfigManager.h"
 #include "FileLog.h"
 #include "TCPClientSync.h"
+#include "SSLClientSync.h"
 
 
 
@@ -90,32 +93,20 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 			}
 			else
 			{
-				std::vector<std::string> kv;
-				boost::split(kv, sConfigManager::instance().m_vService[0].m_sServer, boost::is_any_of(":"));
+				std::string tcpServer = service.m_sTcpServer;
+				std::string sslServer = service.m_sSslServer;
 
-				std::string ip = kv[0];
-				int port = boost::lexical_cast<int>(kv[1]);
-
-				CTCPClientSync m_Conn;
-
-				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "准备连接进程");
-				if (!m_Conn.Connect(ip, port))
+				if (!pThis->TcpHeartBeat(tcpServer))
 				{
-					gFileLog::instance().Log(LOG_LEVEL_ERROR, "连接失败，杀掉进程，重头开始执行");
 					pThis->TerminateAllService();
 					continue;
 				}
 
-				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "准备发送心跳包");
-				if (!m_Conn.HeartBeat())
+				if (!pThis->SslHeartBeat(sslServer))
 				{
-					gFileLog::instance().Log(LOG_LEVEL_ERROR, "发送心跳失败，杀掉进程，重头开始执行");
 					pThis->TerminateAllService();
 					continue;
 				}
-
-				m_Conn.Close();
-
 				
 
 			} // end if
@@ -127,6 +118,67 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 	
 
 	return 0;
+}
+
+bool CMonitorProcessThread::TcpHeartBeat(std::string server)
+{
+	std::vector<std::string> kv;
+				boost::split(kv, server, boost::is_any_of(":"));
+
+				std::string ip = kv[0];
+				int port = boost::lexical_cast<int>(kv[1]);
+
+				CTCPClientSync m_Conn;
+
+				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "tcp准备连接进程" + server);
+				if (!m_Conn.Connect(ip, port))
+				{
+					gFileLog::instance().Log(LOG_LEVEL_ERROR, "tcp连接失败，杀掉进程，重头开始执行");
+					return false;
+					
+				}
+
+				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "tcp准备发送心跳包");
+				if (!m_Conn.HeartBeat())
+				{
+					gFileLog::instance().Log(LOG_LEVEL_ERROR, "tcp发送心跳失败，杀掉进程，重头开始执行");
+					return false;
+				}
+
+				m_Conn.Close();
+
+				return true;
+}
+
+bool CMonitorProcessThread::SslHeartBeat(std::string server)
+{
+	std::vector<std::string> kv;
+				boost::split(kv, server, boost::is_any_of(":"));
+
+				std::string ip = kv[0];
+				int port = boost::lexical_cast<int>(kv[1]);
+
+				boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+				SSLClientSync m_Conn(ctx);
+
+				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "ssl准备连接进程" + server);
+				if (!m_Conn.Connect(ip, port))
+				{
+					gFileLog::instance().Log(LOG_LEVEL_ERROR, "ssl连接失败，杀掉进程，重头开始执行");
+					return false;
+					
+				}
+
+				gFileLog::instance().Log(LOG_LEVEL_DEBUG, "ssl准备发送心跳包");
+				if (!m_Conn.HeartBeat())
+				{
+					gFileLog::instance().Log(LOG_LEVEL_ERROR, "ssl发送心跳失败，杀掉进程，重头开始执行");
+					return false;
+				}
+
+				m_Conn.Close();
+
+				return true;
 }
 
 int CMonitorProcessThread::StartService(std::string sExe)

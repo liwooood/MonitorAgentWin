@@ -14,7 +14,8 @@ public:
 	std::string m_sRebootDate;
 	std::string m_sRebootTime;
 
-	std::string m_sServer;
+	std::string m_sTcpServer;
+	std::string m_sSslServer;
 	//std::vector<int> m_vPort;
 };
 

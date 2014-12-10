@@ -95,9 +95,13 @@ bool CConfigManager::LoadConfig()
 	service.m_sRebootTime = reboot_time;
 
 
-	node = doc.select_single_node("/config/service/webtrade");
+	node = doc.select_single_node("/config/service/trade_ssl");
 	std::string server = node.node().child_value();
-	service.m_sServer = server;
+	service.m_sTcpServer = server;
+
+	node = doc.select_single_node("/config/service/trade_tcp");
+	server = node.node().child_value();
+	service.m_sSslServer = server;
 
 	/*
 	nodes = doc.select_nodes("/config/service/port");

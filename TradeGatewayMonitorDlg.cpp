@@ -140,11 +140,13 @@ void CTradeGatewayMonitorDlg::Init()
 
 	gFileLog::instance().Log(LOG_LEVEL_INFO, "监控代理启动");
 
-	// 启动进程监控
-	//g_MonitorProcessThread.start();	
-
 	// 定时重启
-	//g_MonitorServiceThread.start();
+	g_MonitorServiceThread.start();
+
+	// 启动进程监控
+	g_MonitorProcessThread.start();	
+
+	
 }
 
 

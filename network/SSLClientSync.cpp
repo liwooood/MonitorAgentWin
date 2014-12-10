@@ -369,9 +369,11 @@ bool SSLClientSync::HeartBeat()
 	{
 		//std::string response(pRes->GetPkgBody().begin(),pRes->GetPkgBody().end());
 		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "SSLÓ¦´ðÄÚÈÝ£º" + pRes->GetMsgContentString());
+		bRet = true;
 	}
 	else
 	{
+		bRet = false;
 	}
 	delete pRes;	
 

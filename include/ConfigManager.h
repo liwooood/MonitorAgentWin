@@ -23,7 +23,7 @@ public:
 	std::vector<CService> m_vService;
 
 	int m_nProcessCheck;
-	int m_nServiceCheck;
+	int m_nServiceCheck;//暂时没用到
 	int m_nServiceInit;
 	int m_nConnectTimeout;
 	int m_nReadWriteTimeout;

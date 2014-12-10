@@ -21,6 +21,9 @@ private:
 	HANDLE m_hThread;
 	bool m_bRunning;
 
+	bool TcpHeartBeat(std::string server);
+	bool SslHeartBeat(std::string server);
+
 public:
 	bool IsProcessExist(DWORD dwProcessId);
 	bool IsProcessExist(std::string sProcessName);

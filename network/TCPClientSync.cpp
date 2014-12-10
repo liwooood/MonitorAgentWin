@@ -77,7 +77,7 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 		// 设置连接超时
 		int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
 		std::string sConnectTimeout = boost::lexical_cast<std::string>(nConnectTimeout);
-		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "连接超时时间:" + sConnectTimeout);
+		//gFileLog::instance().Log(LOG_LEVEL_DEBUG, "TCP连接超时时间:" + sConnectTimeout);
 
 		deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
 
@@ -331,14 +331,16 @@ bool CTCPClientSync::HeartBeat()
 	if (bRet)
 	{
 		//std::string response(pRes->GetPkgBody().begin(),pRes->GetPkgBody().end());
-		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "应答内容：" + pRes->GetMsgContentString());
+		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "TCP应答内容：" + pRes->GetMsgContentString());
+		bRet = true;
 	}
 	else
 	{
+		bRet = false;
 	}
 	delete pRes;	
 
 	
-
+	
 	return bRet;
 }

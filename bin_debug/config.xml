@@ -3,14 +3,14 @@
   <!-- 进程状态检测频率，单位秒 -->
   <process_check>3</process_check>
 
-  <!-- 服务功能心跳包检测频率，单位秒 -->
+  <!-- 服务功能心跳包检测频率，单位秒,暂时没有用到 -->
   <service_check>1</service_check>
 
   <!-- 等待服务启动, 初始化等待时间，单位秒 -->
   <service_init>10</service_init>
   
   <!---连接超时，单位秒-->
-  <connect_timeout>5</connect_timeout>
+  <connect_timeout>1</connect_timeout>
   <!---读写超时，单位秒-->
   <readwrite_timeout>3</readwrite_timeout>
   
@@ -26,7 +26,8 @@
     <reboot_time>22:00:00</reboot_time>
     <process>E:\Trade\TradeGateway\bin_debug\tradegateway.exe</process>
     <!-- 服务地址 -->
-    <webtrade>127.0.0.1:5003</webtrade>
+     <trade_ssl>127.0.0.1:5000</trade_ssl>
+     <trade_tcp>127.0.0.1:5001</trade_tcp>
   </service>
   
 </config>

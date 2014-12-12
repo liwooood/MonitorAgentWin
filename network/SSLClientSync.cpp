@@ -161,7 +161,9 @@ bool SSLClientSync::WriteMsgHeader(IMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
-	
+	int pkgHeaderSize = pReq->GetMsgHeaderSize();
+	std::string msg = "需要发送的包头字节大小" + boost::lexical_cast<std::string>(pkgHeaderSize);
+	gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
 	
 	boost::asio::async_write(socket, 
 		boost::asio::buffer(pReq->GetMsgHeader(), pReq->GetMsgHeaderSize()), 
@@ -190,6 +192,10 @@ bool SSLClientSync::WriteMsgHeader(IMessage * pReq)
 bool SSLClientSync::WriteMsgContent(IMessage * pReq)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
+
+	int pkgHeaderSize = pReq->GetMsgContentSize();
+	std::string msg = "需要发送的包体字节大小" + boost::lexical_cast<std::string>(pkgHeaderSize);
+	gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
 
 	boost::asio::async_write(socket, 
 		boost::asio::buffer(pReq->GetMsgContent(), pReq->GetMsgContentSize()), 
@@ -232,6 +238,10 @@ bool SSLClientSync::ReadMsgHeader(IMessage * pRes)
 {
 	boost::system::error_code ec = boost::asio::error::would_block;
 
+	int pkgHeaderSize = pRes->GetMsgHeaderSize();
+	std::string msg = "需要接收的包头字节大小" + boost::lexical_cast<std::string>(pkgHeaderSize);
+	gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
+
 	boost::asio::async_read(socket, 
 		boost::asio::buffer(pRes->GetMsgHeader(), pRes->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
@@ -264,7 +274,11 @@ bool SSLClientSync::ReadMsgContent(IMessage * pRes)
 	{
 		return false;
 	}
-		
+	
+	int pkgHeaderSize = pRes->GetMsgContentSize();
+	std::string msg = "需要接收的包体字节大小" + boost::lexical_cast<std::string>(pkgHeaderSize);
+	gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
+
 	boost::asio::async_read(socket, 
 		boost::asio::buffer(pRes->GetMsgContent(), pRes->GetMsgContentSize()),
 		boost::asio::transfer_all(), 
@@ -302,6 +316,7 @@ void SSLClientSync::Close()
 	
 		socket.lowest_layer().close();
 	
+		
 	
 		if (ec)
 		{
@@ -373,7 +388,8 @@ bool SSLClientSync::HeartBeat()
 	}
 	else
 	{
-		bRet = false;
+		//bRet = false;
+		bRet = true; // 发生short read现象，不中断进程
 	}
 	delete pRes;	
 

@@ -29,7 +29,8 @@ public:
 	int m_nReadWriteTimeout;
 
 	int logLevel;
+	int runMode;
 
 };
-typedef boost::detail::thread::singleton<CConfigManager> sConfigManager;
+typedef boost::detail::thread::singleton<CConfigManager> gConfigManager;
 

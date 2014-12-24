@@ -50,6 +50,7 @@ void CTCPClientSync::check_deadline()
 
 		Close();
 
+		
 		deadline.expires_at(boost::posix_time::pos_infin);
 	}
 	
@@ -75,7 +76,7 @@ bool CTCPClientSync::Connect(std::string ip, int port)
 		boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query, ec);
 
 		// 设置连接超时
-		int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
+		int nConnectTimeout = gConfigManager::instance().m_nConnectTimeout;
 		std::string sConnectTimeout = boost::lexical_cast<std::string>(nConnectTimeout);
 		//gFileLog::instance().Log(LOG_LEVEL_DEBUG, "TCP连接超时时间:" + sConnectTimeout);
 
@@ -305,7 +306,7 @@ bool CTCPClientSync::HeartBeat()
 
 	
 	// 设置读写超时
-	int nReadWriteTimeout = sConfigManager::instance().m_nReadWriteTimeout;
+	int nReadWriteTimeout = gConfigManager::instance().m_nReadWriteTimeout;
 	deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
 
 	// 发送请求

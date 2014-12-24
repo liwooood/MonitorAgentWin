@@ -76,7 +76,7 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 	CMonitorProcessThread * pThis = (CMonitorProcessThread*) pParam;
 	while(pThis->m_bRunning)
 	{
-		std::vector<CService>& m_vService = sConfigManager::instance().m_vService;
+		std::vector<CService>& m_vService = gConfigManager::instance().m_vService;
 
 		for (size_t i=0; i<m_vService.size(); i++)
 		{
@@ -88,7 +88,7 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 				pThis->StartService(service.m_sProcess);
 
 				gFileLog::instance().Log(LOG_LEVEL_INFO, "等待进程启动完成\n");
-				Sleep(sConfigManager::instance().m_nServiceInit * 1000);
+				Sleep(gConfigManager::instance().m_nServiceInit * 1000);
 				continue;
 			}
 			else
@@ -112,7 +112,7 @@ unsigned WINAPI CMonitorProcessThread::ThreadFunc(void * pParam)
 			} // end if
 		}//end for
 
-		Sleep(sConfigManager::instance().m_nProcessCheck * 1000);
+		Sleep(gConfigManager::instance().m_nProcessCheck * 1000);
 	} // end while
 
 	
@@ -298,7 +298,7 @@ bool CMonitorProcessThread::IsProcessExist(std::string sProcessName)
 
 void CMonitorProcessThread::TerminateAllService()
 {
-	std::vector<CService>& m_vService = sConfigManager::instance().m_vService;
+	std::vector<CService>& m_vService = gConfigManager::instance().m_vService;
 
 	for (size_t i=0; i<m_vService.size(); i++)
 	{

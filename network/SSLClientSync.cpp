@@ -83,7 +83,7 @@ bool SSLClientSync::Connect(std::string ip, int port)
 		boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query, ec);
 
 		// 设置连接超时
-		int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
+		int nConnectTimeout = gConfigManager::instance().m_nConnectTimeout;
 		deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
 
 		ec = boost::asio::error::would_block;
@@ -240,7 +240,7 @@ bool SSLClientSync::ReadMsgHeader(IMessage * pRes)
 
 	int pkgHeaderSize = pRes->GetMsgHeaderSize();
 	std::string msg = "需要接收的包头字节大小" + boost::lexical_cast<std::string>(pkgHeaderSize);
-	gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
+	//gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
 
 	boost::asio::async_read(socket, 
 		boost::asio::buffer(pRes->GetMsgHeader(), pRes->GetMsgHeaderSize()), 
@@ -316,6 +316,7 @@ void SSLClientSync::Close()
 	
 		socket.lowest_layer().close();
 	
+		//socket.async_shutdown
 		
 	
 		if (ec)
@@ -326,6 +327,10 @@ void SSLClientSync::Close()
 	
 		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "SSL断开交易网关!");
 	}
+}
+
+void SSLClientSync::shutdown()
+{
 }
 
 bool SSLClientSync::ReConnect()
@@ -351,7 +356,7 @@ bool SSLClientSync::HeartBeat()
 	 boost::posix_time::ptime time_sent = boost::posix_time::microsec_clock::universal_time();
 	
 	// 设置读写超时
-	int nReadWriteTimeout = sConfigManager::instance().m_nReadWriteTimeout;
+	int nReadWriteTimeout = gConfigManager::instance().m_nReadWriteTimeout;
 	deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
 
 	// 发送请求

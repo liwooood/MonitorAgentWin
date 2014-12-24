@@ -15,6 +15,7 @@
 
 #include "MonitorServiceThread.h"
 #include "FileLog.h"
+#include "TCPClientASync.h"
 
 
 
@@ -50,6 +51,8 @@ BEGIN_MESSAGE_MAP(CTradeGatewayMonitorDlg, CDialog)
 	
 	ON_BN_CLICKED(IDC_TEST_SSL_PB, &CTradeGatewayMonitorDlg::OnBnClickedTestSslPb)
 	ON_BN_CLICKED(IDC_TEST_TCP, &CTradeGatewayMonitorDlg::OnBnClickedTestTcp)
+	ON_BN_CLICKED(IDC_TEST_TCP_ASYNC, &CTradeGatewayMonitorDlg::OnBnClickedTestTcpAsync)
+	ON_BN_CLICKED(IDC_TEST_SSL_ASYNC, &CTradeGatewayMonitorDlg::OnBnClickedTestSslAsync)
 END_MESSAGE_MAP()
 
 
@@ -128,7 +131,7 @@ void CTradeGatewayMonitorDlg::OnBnClickedExit()
 
 void CTradeGatewayMonitorDlg::Init()
 {
-	CService& service = sConfigManager::instance().m_vService[0];
+	CService& service = gConfigManager::instance().m_vService[0];
 
 	CString serviceName = "服务名字：";
 	serviceName += service.m_sServiceName.c_str();
@@ -143,17 +146,24 @@ void CTradeGatewayMonitorDlg::Init()
 	// 定时重启
 	g_MonitorServiceThread.start();
 
-	// 启动进程监控
-	g_MonitorProcessThread.start();	
+	if (gConfigManager::instance().runMode)
+	{
+		// 启动进程监控
+		g_MonitorProcessThread.start();	
+	}
 
-	
+	std::string caption = "中软万维监控代理 版本1.1";
+	SetWindowText(caption.c_str());
+
+	// 启动ioservice run
+	tcpAsync.init();
 }
 
 
 void CTradeGatewayMonitorDlg::OnBnClickedOpenLog()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	ShellExecute(NULL, "open", sConfigManager::instance().m_sPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, "open", gConfigManager::instance().m_sPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 
@@ -200,4 +210,25 @@ void CTradeGatewayMonitorDlg::OnBnClickedTestTcp()
 		conn.HeartBeat();
 		conn.Close();
 	}
+}
+
+
+void CTradeGatewayMonitorDlg::OnBnClickedTestTcpAsync()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	
+
+	tcpAsync.Connect("127.0.0.1", 5001);
+
+	for (int i=0; i<2; i++)
+	{
+
+		tcpAsync.HeartBeat();
+	}
+}
+
+
+void CTradeGatewayMonitorDlg::OnBnClickedTestSslAsync()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

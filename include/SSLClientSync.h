@@ -64,7 +64,8 @@ private:
 	bool ReadMsgContent(IMessage * pRes);
 
 	void check_deadline();
-	 bool verify_certificate(bool preverified, boost::asio::ssl::verify_context& ctx);
+	bool verify_certificate(bool preverified, boost::asio::ssl::verify_context& ctx);
+	void shutdown();
 
 private:
 	boost::asio::io_service ios;

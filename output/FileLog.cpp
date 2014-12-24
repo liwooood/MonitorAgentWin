@@ -27,13 +27,13 @@ void FileLog::Log(int logLevel, std::string log, std::string file)
 	std::string msg = "调试信息：" + log  + "\n";
 	TRACE(msg.c_str());
 
-	int tmp = sConfigManager::instance().logLevel;
+	int tmp = gConfigManager::instance().logLevel;
 	//如果传入级别小于设置级别，不记录日志
 	if (logLevel < tmp)
 		return;
 
 	// 创建目录
-	std::string sLogDir = sConfigManager::instance().GetWorkingDir();
+	std::string sLogDir = gConfigManager::instance().GetWorkingDir();
 
 	boost::filesystem::path p(sLogDir);
 	if (!boost::filesystem::exists(p))

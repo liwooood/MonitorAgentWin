@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TCP_CLIENT_ASYNC_H
+#define TCP_CLIENT_ASYNC_H
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -12,20 +13,22 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/asio/deadline_timer.hpp>
 
+#include "IMessage.h"
+
 /*
 问题一：超时
 问题二：循环读写
 */
 class CTCPClientASync
 {
-	/*
+	
 public:
 	CTCPClientASync();
 	~CTCPClientASync(void);
 
 	void init();
 
-	bool Connect(std::string ip, int port);
+	void Connect(std::string ip, int port);
 	
 	void Close();
 
@@ -34,18 +37,23 @@ public:
 
 	void HeartBeat();
 
-private:
-	void Write(TCPClientMsg * pPkg);
-	void WritePkgHeaderHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg);
-	void WritePkgBodyHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg);
+	  
 
-	void Read();
-	void ReadPkgHeaderHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg);
-	void ReadPkgBodyHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg);
+
+private:
+	void OnConnect(const boost::system::error_code& ec);
+
+	void Write(IMessage * msg);
+	void OnWriteMsgHeader(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
+	void OnWriteMsgContent(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
+
+	void Read(IMessage * msg);
+	void OnReadMsgHeader(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
+	void OnReadMsgContent(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
 	
 	void check_deadline();
 
-	std::string decompress(std::string data);
+	
 
 private:
 	boost::asio::io_service ios;
@@ -62,5 +70,7 @@ private:
 
 	//int m_nConnectTimeout;
 	//int m_nReadWriteTimeout;
-	*/
+	bool stopped;
+	
 };
+#endif

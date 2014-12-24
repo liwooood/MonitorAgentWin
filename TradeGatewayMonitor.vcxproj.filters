@@ -60,6 +60,12 @@
     <Filter Include="第三方\xml\rapidxml">
       <UniqueIdentifier>{a8e64869-3d67-4b1b-b9e6-24d921669223}</UniqueIdentifier>
     </Filter>
+    <Filter Include="检测\心跳\同步">
+      <UniqueIdentifier>{8dc6d316-1d0d-449c-9ae9-8b7773a82cd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\心跳\异步">
+      <UniqueIdentifier>{b006701e-77da-42ed-8bc4-47d653a447f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -98,17 +104,20 @@
     <ClCompile Include="network\CustomMessage.cpp">
       <Filter>检测\心跳\SSL &amp; TCP</Filter>
     </ClCompile>
-    <ClCompile Include="network\SSLClientSync.cpp">
-      <Filter>检测\心跳</Filter>
-    </ClCompile>
-    <ClCompile Include="network\TCPClientSync.cpp">
-      <Filter>检测\心跳</Filter>
-    </ClCompile>
     <ClCompile Include="network\communication.pb.cc">
       <Filter>检测\心跳\SSL PB\ProtoBuf</Filter>
     </ClCompile>
     <ClCompile Include="network\pkgheader.pb.cc">
       <Filter>检测\心跳\SSL PB\ProtoBuf</Filter>
+    </ClCompile>
+    <ClCompile Include="network\TCPClientSync.cpp">
+      <Filter>检测\心跳\同步</Filter>
+    </ClCompile>
+    <ClCompile Include="network\SSLClientSync.cpp">
+      <Filter>检测\心跳\同步</Filter>
+    </ClCompile>
+    <ClCompile Include="network\TCPClientASync.cpp">
+      <Filter>检测\心跳\异步</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,11 +184,14 @@
     <ClInclude Include="include\MsgHeader.h">
       <Filter>检测\心跳\SSL &amp; TCP</Filter>
     </ClInclude>
-    <ClInclude Include="include\SSLClientSync.h">
-      <Filter>检测\心跳</Filter>
-    </ClInclude>
     <ClInclude Include="include\TCPClientSync.h">
-      <Filter>检测\心跳</Filter>
+      <Filter>检测\心跳\同步</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSLClientSync.h">
+      <Filter>检测\心跳\同步</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TCPClientASync.h">
+      <Filter>检测\心跳\异步</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

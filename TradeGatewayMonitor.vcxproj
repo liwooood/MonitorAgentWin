@@ -129,6 +129,7 @@
     <ClCompile Include="network\IMessage.cpp" />
     <ClCompile Include="network\pkgheader.pb.cc" />
     <ClCompile Include="network\SSLClientSync.cpp" />
+    <ClCompile Include="network\TCPClientASync.cpp" />
     <ClCompile Include="network\TCPClientSync.cpp" />
     <ClCompile Include="output\FileLog.cpp" />
     <ClCompile Include="Service.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="include\MsgHeader.h" />
     <ClInclude Include="include\SSLClientSync.h" />
     <ClInclude Include="include\ssl_message.h" />
+    <ClInclude Include="include\TCPClientASync.h" />
     <ClInclude Include="include\TCPClientSync.h" />
     <ClInclude Include="include\tcp_message_old.h" />
     <ClInclude Include="MonitorServiceThread.h" />

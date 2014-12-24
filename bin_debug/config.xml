@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="gb2312"?>
 <config>
+  <!--运行模式  0debug不启动服务 1启动服务-->
+  <RunMode>0</RunMode>
+  
   <!-- 进程状态检测频率，单位秒 -->
   <process_check>3</process_check>
 

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "TCPClientASync.h"
 
 // CTradeGatewayMonitorDlg ¶Ô»°¿ò
 class CTradeGatewayMonitorDlg : public CDialog
@@ -39,4 +40,8 @@ public:
 	
 	afx_msg void OnBnClickedTestSslPb();
 	afx_msg void OnBnClickedTestTcp();
+	afx_msg void OnBnClickedTestTcpAsync();
+	afx_msg void OnBnClickedTestSslAsync();
+
+	CTCPClientASync tcpAsync;
 };

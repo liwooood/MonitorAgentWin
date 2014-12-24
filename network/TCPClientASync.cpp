@@ -20,32 +20,35 @@
 
 #include "FileLog.h"
 #include "ConfigManager.h"
+#include "tcp_message_old.h"
 
 
-/*
+
 CTCPClientASync::CTCPClientASync(void)
 	:work(ios)
 	,socket(ios)
 	,deadline(ios)
+	,stopped(false)
 {
-	
-	m_bConnected = false;
-
-	//m_nConnectTimeout = 3;
-	//m_nReadWriteTimeout = 6;
-
 	deadline.expires_at(boost::posix_time::pos_infin);
-	
-	check_deadline();
 }
 
+
+CTCPClientASync::~CTCPClientASync(void)
+{
+}
+
+// OK
 void CTCPClientASync::check_deadline()
 {
+	if (stopped)
+		return;
+
 	if (deadline.expires_at() <= boost::asio::deadline_timer::traits_type::now())
 	{
-		gFileLog::instance().Log("连接超时或读写超时");
+		//gFileLog::instance().Log("连接超时或读写超时");
 
-		Close();
+		socket.close();
 
 		deadline.expires_at(boost::posix_time::pos_infin);
 	}
@@ -54,16 +57,28 @@ void CTCPClientASync::check_deadline()
 }
 
 
-CTCPClientASync::~CTCPClientASync(void)
+// 关闭连接
+void CTCPClientASync::Close()
 {
+	stopped = true;
+
+
+	boost::system::error_code ec;
+
+	socket.close(ec);
+	deadline.cancel();
 }
 
-bool CTCPClientASync::Connect(std::string ip, int port)
+
+
+void CTCPClientASync::Connect(std::string ip, int port)
 {
-	try
-	{
-		m_bConnected = false;
 	
+	
+	// 设置连接超时
+		int nConnectTimeout = gConfigManager::instance().m_nConnectTimeout;
+		deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
+
 		m_sIP = ip;
 		m_nPort = port;
 
@@ -75,53 +90,37 @@ bool CTCPClientASync::Connect(std::string ip, int port)
 
 		boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query, ec);
 
-		// 设置连接超时
-		//int nConnectTimeout = sConfigManager::instance().m_nConnectTimeout;
-		//deadline.expires_from_now( boost::posix_time::seconds(nConnectTimeout) );
+		socket.async_connect(iterator->endpoint(), boost::bind(&CTCPClientASync::OnConnect, this, boost::asio::placeholders::error) );
+		
+		//deadline.async_wait(boost::bind(&CTCPClientASync::check_deadline, this));
+}
 
-		ec = boost::asio::error::would_block;
-
-		boost::asio::async_connect(socket, iterator, boost::lambda::var(ec) = boost::lambda::_1);
-	
-		do 
-			ios.run_one(); 
-		while (ec == boost::asio::error::would_block);
-
-		if (ec || !socket.is_open())
-		{
-			std::string sErrCode = boost::lexical_cast<std::string>(ec.value());
-			std::string sErrMsg = ec.message();
-			std::string sErrInfo = "连接交易网关失败，错误代码：" + sErrCode + ", 错误消息：" + sErrMsg;
-			gFileLog::instance().Log(sErrInfo);
-			
-			
-			m_bConnected = false;
-			return m_bConnected;
-		}
-
-		gFileLog::instance().Log("连接交易网关成功!");
-		m_bConnected = true;
-		return m_bConnected;
-	}
-	catch(std::exception& e)
+void CTCPClientASync::OnConnect(const boost::system::error_code& ec)
+{
+	if (ec)
 	{
-		gFileLog::instance().Log("连接交易网关异常：" + std::string(e.what()));
-		m_bConnected = false;
-		return m_bConnected;
+		TRACE("连接失败\n");
+		Close();
+		return;
 	}
-	
+
+	if (!socket.is_open())
+	{
+		TRACE("连接失败\n");
+		Close();
+	}
+	else
+	{
+		TRACE("连接成功\n");
+	}
 }
 
 
-bool CTCPClientASync::IsConnected()
+void CTCPClientASync::Write(IMessage * msg)
 {
-	return m_bConnected;
-}
+	if (stopped)
+		return;
 
-
-
-void CTCPClientASync::Write(TCPClientMsg * pPkg)
-{
 	// 设置读写超时
 	//int nReadWriteTimeout = sConfigManager::instance().m_nReadWriteTimeout;
 	//deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
@@ -129,210 +128,154 @@ void CTCPClientASync::Write(TCPClientMsg * pPkg)
 	
 
 	boost::asio::async_write(socket, 
-		boost::asio::buffer(pPkg->GetPkgHeader(), pPkg->GetPkgHeaderSize()), 
+		boost::asio::buffer(msg->GetMsgHeader(), msg->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
-		bind(&CTCPClientASync::WritePkgHeaderHandler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pPkg) );
+		boost::bind(&CTCPClientASync::OnWriteMsgHeader, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, msg) );
 }
 
 
 // 写包头
-void CTCPClientASync::WritePkgHeaderHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg)
+void CTCPClientASync::OnWriteMsgHeader(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg)
 {
+	if (stopped)
+		return;
+
 	if (error)
 	{
-		std::string sErrInfo = "写包头失败，错误代码：" + boost::lexical_cast<int>(error.value());
-		sErrInfo += ", 错误信息：" + error.message();
-		gFileLog::instance().Log(sErrInfo);
+		
 
 		Close();
 		return;
-	}
-
-	pPkg->SumPkgHeaderTransferredBytes(nTransferredBytes);
-	if (pPkg->GetPkgHeaderTransferredBytes() != pPkg->GetPkgHeaderSize())
-	{
-		std::string sErrInfo = "写包头失败，已写字节：" + boost::lexical_cast<int>(pPkg->GetPkgHeaderTransferredBytes());
-		sErrInfo += ", 实际字节：" + boost::lexical_cast<int>(pPkg->GetPkgHeaderSize());
-		gFileLog::instance().Log(sErrInfo);
-
-		// 接下来循环读取
-		//return;
 	}
 
 	
+
+	
 	boost::asio::async_write(socket, 
-		boost::asio::buffer(pPkg->GetPkgBody(), pPkg->GetPkgBodySize()), 
+		boost::asio::buffer(msg->GetMsgContent(), msg->GetMsgContentSize()), 
 		boost::asio::transfer_all(), 
-		bind(&CTCPClientASync::WritePkgBodyHandler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pPkg) );
+		bind(&CTCPClientASync::OnWriteMsgContent, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, msg) );
 }
 
 // 写包内容
-void CTCPClientASync::WritePkgBodyHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg)
+void CTCPClientASync::OnWriteMsgContent(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg)
 {
+	if (stopped)
+		return;
+
 	if (error)
 	{
-		std::string sErrInfo = "写包内容失败，错误代码：" + boost::lexical_cast<int>(error.value());
-		sErrInfo += ", 错误信息：" + error.message();
-		gFileLog::instance().Log(sErrInfo);
+		
 
 		Close();
 		return;
-	}
-
-	pPkg->SumPkgBodyTransferredBytes(nTransferredBytes);
-	if (pPkg->GetPkgBodyTransferredBytes() != pPkg->GetPkgBodySize())
-	{
-		std::string sErrInfo = "写包内容失败，已写字节：" + boost::lexical_cast<int>(pPkg->GetPkgBodyTransferredBytes());
-		sErrInfo += ", 实际字节：" + boost::lexical_cast<int>(pPkg->GetPkgBodySize());
-		gFileLog::instance().Log(sErrInfo);
-
-		// 接下来循环读取
-		//return;
 	}
 
 	// 释放资源
-	delete pPkg;
+	delete msg;
 
-	// 接收应答
-	Read();
+	
 }
 
 // 读应答包
-void CTCPClientASync::Read()
+void CTCPClientASync::Read(IMessage * msg)
 {
-	TCPClientMsg * pRes = new TCPClientMsg();
+	if (msg == NULL)
+		return;
+
+	 //deadline.expires_from_now(boost::posix_time::seconds(30));
 
 	boost::asio::async_read(socket, 
-		boost::asio::buffer(pRes->GetPkgHeader(), pRes->GetPkgHeaderSize()), 
+		boost::asio::buffer(msg->GetMsgHeader(), msg->GetMsgHeaderSize()), 
 		boost::asio::transfer_all(), 
-		bind(&CTCPClientASync::ReadPkgHeaderHandler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pRes) );
+		boost::bind(&CTCPClientASync::OnReadMsgHeader, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, msg) );
 }
 
 // 读应答包头
-void CTCPClientASync::ReadPkgHeaderHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg)
+void CTCPClientASync::OnReadMsgHeader(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg)
 {
+	if (stopped)
+		return;
+
 	if (error)
 	{
-		std::string sErrInfo = "读应答包头失败，错误代码：" + boost::lexical_cast<int>(error.value());
-		sErrInfo += ", 错误信息：" + error.message();
-		gFileLog::instance().Log(sErrInfo);
+		
 
 		Close();
 		return;
 	}
 
-	pPkg->SumPkgHeaderTransferredBytes(nTransferredBytes);
-	if (pPkg->GetPkgHeaderTransferredBytes() != pPkg->GetPkgHeaderSize())
-	{
-		std::string sErrInfo = "读应答包头失败，已读字节：" + boost::lexical_cast<int>(pPkg->GetPkgHeaderTransferredBytes());
-		sErrInfo += ", 实际字节：" + boost::lexical_cast<int>(pPkg->GetPkgHeaderSize());
-		gFileLog::instance().Log(sErrInfo);
+	
 
-		// 接下来循环读取
-	}
-
-	if (!pPkg->DecodePkgHeader())
+	if (!msg->DecoderMsgHeader())
 	{
 		Close();
 		return;
 	}
 		
 	boost::asio::async_read(socket, 
-		boost::asio::buffer(pPkg->GetPkgBody(), pPkg->GetPkgBodySize()), 
+		boost::asio::buffer(msg->GetMsgContent(), msg->GetMsgContentSize()), 
 		boost::asio::transfer_all(), 
-		bind(&CTCPClientASync::ReadPkgBodyHandler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, pPkg) );
+		boost::bind(&CTCPClientASync::OnReadMsgContent, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred, msg) );
 }
 
 // 读应答包内容
-void CTCPClientASync::ReadPkgBodyHandler(const boost::system::error_code& error, int nTransferredBytes, TCPClientMsg * pPkg)
+void CTCPClientASync::OnReadMsgContent(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg)
 {
+	if (stopped)
+		return;
+
 	if (error)
 	{
-		std::string  sErrInfo = "读应答包内容失败，错误代码：" + boost::lexical_cast<int>(error.value());
-		sErrInfo += ", 错误信息：" + error.message();
-		gFileLog::instance().Log(sErrInfo);
-
 		Close();
 		return;
 	}
 
-	pPkg->SumPkgBodyTransferredBytes(nTransferredBytes);
-	if (pPkg->GetPkgBodyTransferredBytes() != pPkg->GetPkgBodySize())
-	{
-		std::string sErrInfo = "读应答包内容失败，已读字节：" + boost::lexical_cast<int>(pPkg->GetPkgBodyTransferredBytes());
-		sErrInfo += ", 实际字节：" + boost::lexical_cast<int>(pPkg->GetPkgBodySize());
-		gFileLog::instance().Log(sErrInfo);
+	
 
-		// 接下来循环读取
-	}
-
-	std::string response(pPkg->GetPkgBody().begin(), pPkg->GetPkgBody().end());
-	gFileLog::instance().Log("应答内容：" + response);
+	std::string response(msg->GetMsgContent().begin(), msg->GetMsgContent().end());
+	TRACE("response=");
+	TRACE(response.c_str());
 
 	// 释放资源
-	delete pPkg;
+	delete msg;
 }
 
-// 关闭连接
-void CTCPClientASync::Close()
-{
-	gFileLog::instance().Log("关闭连接!");
-
-	m_bConnected = false;
-
-	boost::system::error_code ec;
-
-	socket.close(ec);
-
-	//socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-	
-	//if (ec)
-	//{
-	//	gFileLog::instance().Log("断开交易网关异常：" + ec.message());
-	//}
-
-	//
-}
-
-bool CTCPClientASync::ReConnect()
-{
-	Close();
-
-	return Connect(m_sIP, m_nPort);
-}
-
-std::string CTCPClientASync::decompress(std::string data)
-{
-    std::stringstream compressed;
-    compressed << data;
-
-	
-    
-    boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
-    out.push(boost::iostreams::zlib_decompressor());
-    out.push(compressed);
-
-	std::stringstream decompressed;
-    boost::iostreams::copy(out, decompressed);
-
-    return decompressed.str();
-}
 
 // 发送包
 void CTCPClientASync::HeartBeat()
 {
-	if (!m_bConnected)
-		return;
-
 	std::string SOH = "\x01";
 
-	std::string  sRequest = "cssweb_funcid=999999" + SOH;
+	std::string request = "cssweb_funcid=999999" + SOH;
 
-	TCPClientMsg * pReq = new TCPClientMsg();
-	pReq->SetPkgBody(sRequest);
-	pReq->EncodePkgHeader();
+	bool bRet = false;
+
+	
+	// 设置读写超时
+	//int nReadWriteTimeout = gConfigManager::instance().m_nReadWriteTimeout;
+	//deadline.expires_from_now( boost::posix_time::seconds(nReadWriteTimeout) );
+
+	// 发送请求
+	IMessage * pReq = new tcp_message_old();
+
+	int msgHeaderSize = request.size();
+		msgHeaderSize = htonl(msgHeaderSize);
+		memcpy(&(pReq->m_MsgHeader.front()), &msgHeaderSize, 4);
+
+	pReq->SetMsgContent(request);
+
+
+	
 
 	Write(pReq);
+	
+
+	// 接收应答
+	IMessage * pRes = new tcp_message_old();
+	Read(pRes);
+	
+
 }
 
 void CTCPClientASync::init()
@@ -340,4 +283,4 @@ void CTCPClientASync::init()
 	boost::thread t(boost::bind(&boost::asio::io_service::run, &ios));
 		
 }
-*/
+

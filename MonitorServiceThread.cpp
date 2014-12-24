@@ -65,7 +65,7 @@ unsigned WINAPI CMonitorServiceThread::ThreadFunc(void * pParam)
 	while(pThis->m_bRunning)
 	{
 		
-		std::vector<CService>& m_vService = sConfigManager::instance().m_vService;
+		std::vector<CService>& m_vService = gConfigManager::instance().m_vService;
 
 		for (size_t i=0; i<m_vService.size(); i++)
 		{

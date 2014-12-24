@@ -52,7 +52,17 @@ bool CConfigManager::LoadConfig()
 	
 	
 
-	
+	node = doc.select_single_node("/config/RunMode");
+	std::string tmp = node.node().child_value();
+	if (tmp.empty())
+	{
+		runMode = 1;
+	}
+	else
+	{
+		runMode = boost::lexical_cast<int>(tmp);
+	}
+
 	node = doc.select_single_node("/config/process_check");
 	m_nProcessCheck = boost::lexical_cast<int>(node.node().child_value());
 

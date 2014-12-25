@@ -178,10 +178,9 @@ void CTCPClientASync::OnWriteMsgContent(const boost::system::error_code& error, 
 }
 
 // 读应答包
-void CTCPClientASync::Read(IMessage * msg)
+void CTCPClientASync::Read()
 {
-	if (msg == NULL)
-		return;
+	IMessage * msg = new tcp_message_old();
 
 	 //deadline.expires_from_now(boost::posix_time::seconds(30));
 
@@ -209,6 +208,7 @@ void CTCPClientASync::OnReadMsgHeader(const boost::system::error_code& error, in
 
 	if (!msg->DecoderMsgHeader())
 	{
+		
 		Close();
 		return;
 	}
@@ -236,9 +236,12 @@ void CTCPClientASync::OnReadMsgContent(const boost::system::error_code& error, i
 	std::string response(msg->GetMsgContent().begin(), msg->GetMsgContent().end());
 	TRACE("response=");
 	TRACE(response.c_str());
+	TRACE("\n");
 
 	// 释放资源
-	delete msg;
+	//delete msg;
+
+	Read();
 }
 
 
@@ -271,10 +274,6 @@ void CTCPClientASync::HeartBeat()
 	Write(pReq);
 	
 
-	// 接收应答
-	IMessage * pRes = new tcp_message_old();
-	Read(pRes);
-	
 
 }
 

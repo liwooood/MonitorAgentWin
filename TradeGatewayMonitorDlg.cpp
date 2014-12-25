@@ -219,11 +219,13 @@ void CTradeGatewayMonitorDlg::OnBnClickedTestTcpAsync()
 	
 
 	tcpAsync.Connect("127.0.0.1", 5001);
+	tcpAsync.Read();
 
-	for (int i=0; i<2; i++)
+	for (int i=0; i<5; i++)
 	{
 
 		tcpAsync.HeartBeat();
+		Sleep(3000);
 	}
 }
 

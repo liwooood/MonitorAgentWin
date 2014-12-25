@@ -39,18 +39,6 @@
     <Filter Include="检测\心跳">
       <UniqueIdentifier>{19d1ce1c-259e-4036-a0ef-80f4fb78b898}</UniqueIdentifier>
     </Filter>
-    <Filter Include="检测\心跳\SSL PB">
-      <UniqueIdentifier>{4d377a43-e91b-4721-ad18-3c102b494343}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="检测\心跳\SSL PB\ProtoBuf">
-      <UniqueIdentifier>{25ed124b-2332-4256-9e7a-8bd9f86995f0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="检测\心跳\TCP_OLD">
-      <UniqueIdentifier>{3289b462-c9ed-443f-8325-7c65a89030bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="检测\心跳\SSL &amp; TCP">
-      <UniqueIdentifier>{5cf301f2-001a-4bbe-9668-5e69fb297057}</UniqueIdentifier>
-    </Filter>
     <Filter Include="第三方\xml">
       <UniqueIdentifier>{588263af-82dc-4ceb-b23c-c601bf28a12e}</UniqueIdentifier>
     </Filter>
@@ -65,6 +53,15 @@
     </Filter>
     <Filter Include="检测\心跳\异步">
       <UniqueIdentifier>{b006701e-77da-42ed-8bc4-47d653a447f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\心跳\Socket版本">
+      <UniqueIdentifier>{10d9021e-bd7b-4ca3-bdf9-1f89439bb26d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\心跳\消息">
+      <UniqueIdentifier>{2613eb87-c14c-4f90-aad7-b0838c610345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="检测\心跳\消息\ProtoBuf">
+      <UniqueIdentifier>{25ed124b-2332-4256-9e7a-8bd9f86995f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -98,17 +95,11 @@
     <ClCompile Include="import_lib.cpp">
       <Filter>第三方</Filter>
     </ClCompile>
-    <ClCompile Include="network\IMessage.cpp">
-      <Filter>检测\心跳</Filter>
-    </ClCompile>
-    <ClCompile Include="network\CustomMessage.cpp">
-      <Filter>检测\心跳\SSL &amp; TCP</Filter>
-    </ClCompile>
     <ClCompile Include="network\communication.pb.cc">
-      <Filter>检测\心跳\SSL PB\ProtoBuf</Filter>
+      <Filter>检测\心跳\消息\ProtoBuf</Filter>
     </ClCompile>
     <ClCompile Include="network\pkgheader.pb.cc">
-      <Filter>检测\心跳\SSL PB\ProtoBuf</Filter>
+      <Filter>检测\心跳\消息\ProtoBuf</Filter>
     </ClCompile>
     <ClCompile Include="network\TCPClientSync.cpp">
       <Filter>检测\心跳\同步</Filter>
@@ -118,6 +109,12 @@
     </ClCompile>
     <ClCompile Include="network\TCPClientASync.cpp">
       <Filter>检测\心跳\异步</Filter>
+    </ClCompile>
+    <ClCompile Include="network\CustomMessage.cpp">
+      <Filter>检测\心跳\消息</Filter>
+    </ClCompile>
+    <ClCompile Include="network\IMessage.cpp">
+      <Filter>检测\心跳\消息</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -163,26 +160,11 @@
     <ClInclude Include="xml\rapidxml_utils.hpp">
       <Filter>第三方\xml\rapidxml</Filter>
     </ClInclude>
-    <ClInclude Include="include\tcp_message_old.h">
-      <Filter>检测\心跳\TCP_OLD</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ssl_message.h">
-      <Filter>检测\心跳\SSL PB</Filter>
-    </ClInclude>
-    <ClInclude Include="include\IMessage.h">
-      <Filter>检测\心跳</Filter>
-    </ClInclude>
     <ClInclude Include="include\FileLog.h">
       <Filter>本地日志</Filter>
     </ClInclude>
     <ClInclude Include="include\ConfigManager.h">
       <Filter>配置文件</Filter>
-    </ClInclude>
-    <ClInclude Include="include\CustomMessage.h">
-      <Filter>检测\心跳\SSL &amp; TCP</Filter>
-    </ClInclude>
-    <ClInclude Include="include\MsgHeader.h">
-      <Filter>检测\心跳\SSL &amp; TCP</Filter>
     </ClInclude>
     <ClInclude Include="include\TCPClientSync.h">
       <Filter>检测\心跳\同步</Filter>
@@ -192,6 +174,21 @@
     </ClInclude>
     <ClInclude Include="include\TCPClientASync.h">
       <Filter>检测\心跳\异步</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tcp_message_old.h">
+      <Filter>检测\心跳\消息</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ssl_message.h">
+      <Filter>检测\心跳\消息</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CustomMessage.h">
+      <Filter>检测\心跳\消息</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MsgHeader.h">
+      <Filter>检测\心跳\消息</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IMessage.h">
+      <Filter>检测\心跳\消息</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

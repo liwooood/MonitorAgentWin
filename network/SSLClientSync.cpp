@@ -278,7 +278,7 @@ bool SSLClientSync::ReadMsgContent(IMessage * pRes)
 	int pkgHeaderSize = pRes->GetMsgContentSize();
 	std::string msg = "需要接收的包体字节大小" + boost::lexical_cast<std::string>(pkgHeaderSize);
 	gFileLog::instance().Log(LOG_LEVEL_DEBUG, msg);
-
+	
 	boost::asio::async_read(socket, 
 		boost::asio::buffer(pRes->GetMsgContent(), pRes->GetMsgContentSize()),
 		boost::asio::transfer_all(), 
@@ -312,17 +312,20 @@ void SSLClientSync::Close()
 
 		boost::system::error_code ec;
 
-		socket.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+		//socket.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
 	
-		socket.lowest_layer().close();
+		//socket.lowest_layer().close();
 	
-		//socket.async_shutdown
-		
+		socket.async_shutdown(boost::lambda::var(ec) = boost::lambda::_1);
+		do 
+			ios.run_one(); 
+		while (ec == boost::asio::error::would_block);
 	
 		if (ec)
 		{
 			gFileLog::instance().Log(LOG_LEVEL_ERROR, "SSL断开交易网关异常：" + ec.message());
 		}
+		
 
 	
 		gFileLog::instance().Log(LOG_LEVEL_DEBUG, "SSL断开交易网关!");

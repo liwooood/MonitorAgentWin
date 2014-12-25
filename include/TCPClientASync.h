@@ -38,16 +38,17 @@ public:
 	void HeartBeat();
 
 	  
-
+	void Write(IMessage * msg);
+	void Read();
 
 private:
 	void OnConnect(const boost::system::error_code& ec);
 
-	void Write(IMessage * msg);
+	
 	void OnWriteMsgHeader(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
 	void OnWriteMsgContent(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
 
-	void Read(IMessage * msg);
+	
 	void OnReadMsgHeader(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
 	void OnReadMsgContent(const boost::system::error_code& error, int nTransferredBytes, IMessage * msg);
 	
